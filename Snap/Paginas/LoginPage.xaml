@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Snap.Paginas.LoginPage"
+             Title="Iniciar Sesión">
+    <ScrollView>
+        <VerticalStackLayout Spacing="25"
+                             Padding="30,0"
+                             VerticalOptions="Center">
+            <Image Source="logo.png"
+                   HeightRequest="150"
+                   HorizontalOptions="Center" />
+            <Label Text="¡Bienvenido a Snap!"
+                   FontSize="28"
+                   HorizontalOptions="Center" />
+            <VerticalStackLayout Spacing="5">
+                <Label Text="Email o Teléfono"
+                       FontSize="Medium" />
+                <Entry x:Name="EntryUsuario"
+                       Placeholder="Ingresa tu email o teléfono"
+                       Keyboard="Email"
+                       Margin="0,5,0,0" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Spacing="5">
+                <Label Text="PIN de contacto"
+                       FontSize="Medium" />
+                <Entry x:Name="EntryPin"
+                       Placeholder="Ingresa tu PIN"
+                       IsPassword="True"
+                       MaxLength="6"
+                       Keyboard="Numeric"
+                       Margin="0,5,0,0" />
+            </VerticalStackLayout>
+            <Button x:Name="BtnLogin"
+                    Text="Iniciar Sesión"
+                    Clicked="OnLoginClicked"
+                    HorizontalOptions="Center"
+                    WidthRequest="200" />
+            <HorizontalStackLayout HorizontalOptions="Center">
+                <Label Text="¿No tienes cuenta? " />
+                <Label Text="Regístrate"
+                       TextColor="{StaticResource Primary}"
+                       TextDecorations="Underline">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRegistrateClicked" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+            <ActivityIndicator x:Name="Cargando"
+                               IsRunning="False"
+                               IsVisible="False"
+                               HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

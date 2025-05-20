@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Snap.Paginas;
+using Snap.Servicios;
 
 namespace Snap
 {
@@ -15,8 +17,16 @@ namespace Snap
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            // Registro de servicios
+            builder.Services.AddSingleton<ApiService>();
+
+            // Registro de páginas
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<InicioPage>();
+            // Registrar el resto de páginas cuando se implementen
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

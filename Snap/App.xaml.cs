@@ -5,8 +5,17 @@
         public App()
         {
             InitializeComponent();
-
             MainPage = new AppShell();
+        }
+
+        protected override Window CreateWindow(IActivationState activationState)
+        {
+            var window = base.CreateWindow(activationState);
+
+            // Opcional: configurar la ventana
+            window.Title = "Snap";
+
+            return window;
         }
     }
 }

@@ -64,8 +64,20 @@
 
 	<ItemGroup>
 	  <Folder Include="Catalogos\" />
-	  <Folder Include="Servicios\" />
-	  <Folder Include="Paginas\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\COMMON\COMMON.csproj" />
+	  <ProjectReference Include="..\DAL\DAL.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Paginas\InicioPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Paginas\LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

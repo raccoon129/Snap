@@ -1,15 +1,43 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Shell
-    x:Class="Snap.AppShell"
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Snap"
-    Shell.FlyoutBehavior="Disabled"
-    Title="Snap">
-
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
-
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:Snap.Paginas"
+       x:Class="Snap.AppShell"
+       Title="Snap"
+       Shell.FlyoutBehavior="Disabled">
+    <ShellContent Title="Login"
+                  ContentTemplate="{DataTemplate local:LoginPage}"
+                  Route="Login" />
+    <TabBar Route="Principal">
+        <Tab Title="Inicio"
+             Icon="home.png">
+            <ShellContent Title="Inicio"
+                          ContentTemplate="{DataTemplate local:InicioPage}"
+                          Route="Inicio" />
+        </Tab>
+        <Tab Title="Explorar"
+             Icon="search.png">
+            <ShellContent Title="Explorar"
+                          ContentTemplate="{DataTemplate local:InicioPage}"
+                          Route="Explorar" />
+        </Tab>
+        <Tab Title="Cámara"
+             Icon="camera.png">
+            <ShellContent Title="Cámara"
+                          ContentTemplate="{DataTemplate local:InicioPage}"
+                          Route="Camara" />
+        </Tab>
+        <Tab Title="Favoritos"
+             Icon="heart.png">
+            <ShellContent Title="Favoritos"
+                          ContentTemplate="{DataTemplate local:InicioPage}"
+                          Route="Favoritos" />
+        </Tab>
+        <Tab Title="Perfil"
+             Icon="user.png">
+            <ShellContent Title="Perfil"
+                          ContentTemplate="{DataTemplate local:InicioPage}"
+                          Route="Perfil" />
+        </Tab>
+    </TabBar>
 </Shell>

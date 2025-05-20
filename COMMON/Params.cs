@@ -10,9 +10,9 @@ namespace COMMON
     {
         public static string UsuarioConectado = "APIUser";
 #if DEBUG
-        public static string UrlAPI = @"https://localhost:7179/";
+        public static string UrlAPI = @"http://localhost:5131/";
 #else
-        public static string UrlAPI = @"https://1475api.runasp.net/";
+        public static string UrlAPI = @"http://1475api.runasp.net/";
 #endif
     }
 }
