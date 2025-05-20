@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Snap.Paginas.PublicacionPage"
+             Title="Publicación">
+    <ScrollView>
+        <Grid RowDefinitions="Auto,Auto,*,Auto"
+              Padding="0,0,0,15">
+            <!-- Cabecera -->
+            <Grid Grid.Row="0"
+                  Padding="15,10"
+                  ColumnDefinitions="*,Auto">
+                <Label Text="Publicación"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center" />
+                <ImageButton Grid.Column="1"
+                             Source="notification.png"
+                             HeightRequest="28"
+                             WidthRequest="28"
+                             BackgroundColor="Transparent"
+                             Padding="5" />
+            </Grid>
+            <!-- Línea separadora -->
+            <BoxView Grid.Row="0"
+                     HeightRequest="1"
+                     Color="LightGray"
+                     VerticalOptions="End" />
+            <!-- Información usuario -->
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="Auto,*"
+                  Padding="15,10">
+                <Frame HeightRequest="40"
+                       WidthRequest="40"
+                       CornerRadius="20"
+                       IsClippedToBounds="True"
+                       Padding="0">
+                    <Image x:Name="ImgPerfilUsuario"
+                           Aspect="AspectFill" />
+                </Frame>
+                <StackLayout Grid.Column="1"
+                             Margin="10,0">
+                    <Label x:Name="LblNombreUsuario"
+                           FontAttributes="Bold"
+                           FontSize="14" />
+                    <Label x:Name="LblTiempoPublicacion"
+                           TextColor="Gray"
+                           FontSize="12" />
+                </StackLayout>
+            </Grid>
+            <!-- Contenido publicación -->
+            <StackLayout Grid.Row="2"
+                         Spacing="15">
+                <!-- Foto -->
+                <Frame Margin="15,0"
+                       Padding="0"
+                       HasShadow="True"
+                       CornerRadius="5"
+                       IsClippedToBounds="True">
+                    <Image x:Name="ImgPublicacion"
+                           HeightRequest="350"
+                           Aspect="AspectFill" />
+                </Frame>
+                <!-- Interacciones -->
+                <HorizontalStackLayout Spacing="15"
+                                       Margin="15,5">
+                    <ImageButton Source="like.png"
+                                 HeightRequest="24"
+                                 BackgroundColor="Transparent" />
+                    <Label x:Name="LblNumeroLikes"
+                           VerticalOptions="Center" />
+                    <ImageButton Source="comment.png"
+                                 HeightRequest="24"
+                                 BackgroundColor="Transparent"
+                                 Margin="10,0,0,0" />
+                    <Label x:Name="LblNumeroComentarios"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <!-- Descripción -->
+                <StackLayout Margin="15,0">
+                    <Label x:Name="LblDescripcion"
+                           FontSize="14" />
+                </StackLayout>
+                <!-- Comentarios -->
+                <StackLayout Margin="15,10,15,0">
+                    <Label Text="Comentarios"
+                           FontAttributes="Bold"
+                           FontSize="16" />
+                </StackLayout>
+                <CollectionView x:Name="ListaComentarios"
+                                HeightRequest="300"
+                                Margin="15,0"
+                                EmptyView="Todavía no hay comentarios">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,*"
+                                  Padding="0,10">
+                                <Frame HeightRequest="32"
+                                       WidthRequest="32"
+                                       CornerRadius="16"
+                                       IsClippedToBounds="True"
+                                       Padding="0">
+                                    <Image Source="{Binding UrlFotoPerfil}"
+                                           Aspect="AspectFill" />
+                                </Frame>
+                                <StackLayout Grid.Column="1"
+                                             Margin="10,0">
+                                    <Label>
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding NombreUsuario}"
+                                                      FontAttributes="Bold" />
+                                                <Span Text=" " />
+                                                <Span Text="{Binding Comentario}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label Text="{Binding TiempoComentario}"
+                                           TextColor="Gray"
+                                           FontSize="Small" />
+                                </StackLayout>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+            <!-- Comentar -->
+            <Grid Grid.Row="3"
+                  ColumnDefinitions="*,Auto"
+                  Padding="15,10"
+                  VerticalOptions="End">
+                <Frame Padding="15,0"
+                       CornerRadius="20">
+                    <Entry Placeholder="Escribe un comentario..."
+                           VerticalOptions="Center" />
+                </Frame>
+                <Button Grid.Column="1"
+                        Text="Enviar"
+                        Margin="5,0,0,0"
+                        CornerRadius="20" />
+            </Grid>
+        </Grid>
+    </ScrollView>
+</ContentPage>

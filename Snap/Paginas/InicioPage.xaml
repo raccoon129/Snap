@@ -2,27 +2,15 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Snap.Paginas.InicioPage"
-             Title="Inicio">
+             Title="Recuerdos">
     <Grid RowDefinitions="Auto,*">
         <!-- Cabecera -->
-        <HorizontalStackLayout Grid.Row="0"
-                               Padding="15"
-                               Spacing="10">
-            <Label Text="Snap"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   VerticalOptions="Center" />
-            <Label x:Name="LblUsuario"
-                   Text="¡Hola!"
-                   VerticalOptions="Center"
-                   HorizontalOptions="StartAndExpand" />
-            <ImageButton Source="search.png"
-                         HeightRequest="30"
-                         WidthRequest="30"
-                         Aspect="AspectFit"
-                         BackgroundColor="Transparent"
-                         Padding="5" />
-        </HorizontalStackLayout>
+
+        <!-- Línea separadora -->
+        <BoxView Grid.Row="0"
+                 HeightRequest="1"
+                 Color="LightGray"
+                 VerticalOptions="End" />
         <!-- Contenido principal -->
         <RefreshView Grid.Row="1"
                      x:Name="RefrescarContenido"
@@ -32,68 +20,71 @@
                             EmptyView="Todavía no hay publicaciones para mostrar">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="10"
-                               Padding="0"
-                               CornerRadius="10"
-                               IsClippedToBounds="True">
-                            <Grid RowDefinitions="Auto,Auto,Auto">
-                                <!-- Cabecera de la publicación -->
-                                <HorizontalStackLayout Grid.Row="0"
-                                                       Padding="10">
-                                    <Frame HeightRequest="40"
-                                           WidthRequest="40"
-                                           CornerRadius="20"
-                                           IsClippedToBounds="True"
-                                           Padding="0">
-                                        <Image Source="{Binding UrlFotoPerfil}"
-                                               Aspect="AspectFill" />
-                                    </Frame>
-                                    <VerticalStackLayout Margin="10,0,0,0">
-                                        <Label Text="{Binding NombreUsuario}"
-                                               FontAttributes="Bold" />
-                                        <Label Text="{Binding Ubicacion}"
-                                               FontSize="Small" />
-                                    </VerticalStackLayout>
-                                </HorizontalStackLayout>
-                                <!-- Foto -->
-                                <Image Grid.Row="1"
-                                       Source="{Binding UrlFoto}"
-                                       Aspect="AspectFill"
-                                       HeightRequest="300" />
-                                <!-- Botones e información -->
-                                <VerticalStackLayout Grid.Row="2"
-                                                     Padding="10">
-                                    <HorizontalStackLayout Spacing="15">
-                                        <ImageButton Source="like.png"
-                                                     HeightRequest="24"
-                                                     BackgroundColor="Transparent" />
-                                        <ImageButton Source="comment.png"
-                                                     HeightRequest="24"
-                                                     BackgroundColor="Transparent" />
-                                        <ImageButton Source="share.png"
-                                                     HeightRequest="24"
-                                                     BackgroundColor="Transparent"
-                                                     HorizontalOptions="EndAndExpand" />
-                                    </HorizontalStackLayout>
-                                    <Label Text="{Binding NumeroLikes, StringFormat='{0} Me gusta'}"
+                        <Grid Padding="0,10"
+                              RowDefinitions="Auto,Auto,Auto,Auto">
+                            <!-- Cabecera usuario -->
+                            <Grid Grid.Row="0"
+                                  ColumnDefinitions="Auto,*,Auto"
+                                  Padding="10,5">
+                                <Frame HeightRequest="40"
+                                       WidthRequest="40"
+                                       CornerRadius="20"
+                                       IsClippedToBounds="True"
+                                       Padding="0">
+                                    <Image Source="{Binding UrlFotoPerfil}"
+                                           Aspect="AspectFill" />
+                                </Frame>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     VerticalOptions="Center"
+                                                     Margin="10,0">
+                                    <Label Text="{Binding NombreUsuario}"
                                            FontAttributes="Bold"
-                                           Margin="0,5,0,0" />
-                                    <Label>
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="{Binding NombreUsuario}"
-                                                      FontAttributes="Bold" />
-                                                <Span Text=" " />
-                                                <Span Text="{Binding Descripcion}" />
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>
-                                    <Label Text="{Binding FechaPublicacion}"
+                                           FontSize="14" />
+                                    <Label Text="{Binding TiempoPublicacion}"
                                            TextColor="Gray"
-                                           FontSize="Small" />
+                                           FontSize="12" />
                                 </VerticalStackLayout>
                             </Grid>
-                        </Frame>
+                            <!-- Fotos -->
+                            <Frame Grid.Row="1"
+                                   Margin="10,0"
+                                   Padding="0"
+                                   HasShadow="True"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Grid HeightRequest="300">
+                                    <Image Source="{Binding UrlFoto}"
+                                           Aspect="AspectFill" />
+                                </Grid>
+                            </Frame>
+                            <!-- Interacciones -->
+                            <HorizontalStackLayout Grid.Row="2"
+                                                   Spacing="15"
+                                                   Margin="15,10">
+                                <ImageButton Source="like.png"
+                                             HeightRequest="24"
+                                             BackgroundColor="Transparent" />
+                                <Label Text="{Binding NumeroLikes}"
+                                       VerticalOptions="Center" />
+                                <ImageButton Source="comment.png"
+                                             HeightRequest="24"
+                                             BackgroundColor="Transparent"
+                                             Margin="10,0,0,0" />
+                                <Label Text="{Binding NumeroComentarios}"
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <!-- Descripción -->
+                            <StackLayout Grid.Row="3"
+                                         Margin="15,0,15,15">
+                                <Label Text="{Binding Descripcion}"
+                                       FontSize="14" />
+                            </StackLayout>
+                            <!-- Línea separadora -->
+                            <BoxView Grid.Row="3"
+                                     HeightRequest="1"
+                                     Color="LightGray"
+                                     VerticalOptions="End" />
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

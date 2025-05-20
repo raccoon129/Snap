@@ -10,9 +10,10 @@ namespace COMMON
     {
         public static string UsuarioConectado = "APIUser";
 #if DEBUG
-        public static string UrlAPI = @"http://localhost:5131/";
+        //public static string UrlAPI = @"http://localhost:5131/";
+        public static string UrlAPI = @"https://webapi-snap-fxgrc8fne3dvdqbj.canadacentral-01.azurewebsites.net/";
 #else
-        public static string UrlAPI = @"http://1475api.runasp.net/";
+        public static string UrlAPI = @"https://webapi-snap-fxgrc8fne3dvdqbj.canadacentral-01.azurewebsites.net/";
 #endif
     }
 }

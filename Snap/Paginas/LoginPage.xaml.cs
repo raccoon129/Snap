@@ -20,7 +20,7 @@ public partial class LoginPage : ContentPage
         if (sesion.SesionActiva)
         {
             // Navegar al TabBar principal
-            await Shell.Current.GoToAsync("//Principal/Inicio");
+            await Shell.Current.GoToAsync("///Inicio");
         }
     }
 
@@ -40,14 +40,14 @@ public partial class LoginPage : ContentPage
 
             var resultado = await _apiService.IniciarSesion(EntryUsuario.Text, EntryPin.Text);
 
-            if (resultado)
+            if (resultado.Item1)
             {
                 // Ir a la página principal
-                await Shell.Current.GoToAsync("//Principal/Inicio");
+                await Shell.Current.GoToAsync("///Inicio");
             }
             else
             {
-                await DisplayAlert("Error", "Credenciales incorrectas", "OK");
+                await DisplayAlert("Error", resultado.Item2, "OK");
             }
         }
         catch (Exception ex)
@@ -61,6 +61,7 @@ public partial class LoginPage : ContentPage
             BtnLogin.IsEnabled = true;
         }
     }
+
 
     private async void OnRegistrateClicked(object sender, EventArgs e)
     {

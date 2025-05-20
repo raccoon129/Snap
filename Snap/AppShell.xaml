@@ -11,32 +11,22 @@
     <TabBar Route="Principal">
         <Tab Title="Inicio"
              Icon="home.png">
-            <ShellContent Title="Inicio"
+            <ShellContent Title="Recuerdos"
                           ContentTemplate="{DataTemplate local:InicioPage}"
                           Route="Inicio" />
         </Tab>
-        <Tab Title="Explorar"
-             Icon="search.png">
-            <ShellContent Title="Explorar"
-                          ContentTemplate="{DataTemplate local:InicioPage}"
-                          Route="Explorar" />
-        </Tab>
+
         <Tab Title="Cámara"
              Icon="camera.png">
-            <ShellContent Title="Cámara"
-                          ContentTemplate="{DataTemplate local:InicioPage}"
-                          Route="Camara" />
+            <ShellContent Title="Capturar"
+                          ContentTemplate="{DataTemplate local:CapturaPage}"
+                          Route="Capturar" />
         </Tab>
-        <Tab Title="Favoritos"
-             Icon="heart.png">
-            <ShellContent Title="Favoritos"
-                          ContentTemplate="{DataTemplate local:InicioPage}"
-                          Route="Favoritos" />
-        </Tab>
+
         <Tab Title="Perfil"
              Icon="user.png">
             <ShellContent Title="Perfil"
-                          ContentTemplate="{DataTemplate local:InicioPage}"
+                          ContentTemplate="{DataTemplate local:PerfilPage}"
                           Route="Perfil" />
         </Tab>
     </TabBar>

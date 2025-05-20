@@ -23,7 +23,8 @@ namespace Snap.Servicios
             _sesion = new SesionUsuario();
         }
 
-        public async Task<bool> IniciarSesion(string emailOTelefono, string pin)
+
+        public async Task<Tuple<bool, string>> IniciarSesion(string emailOTelefono, string pin)
         {
             try
             {
@@ -48,7 +49,7 @@ namespace Snap.Servicios
                         _sesion.FechaExpiracion = DateTime.Now.AddDays(7);
 
                         await GuardarSesion();
-                        return true;
+                        return Tuple.Create(true, string.Empty);
                     }
                 }
                 else
@@ -56,15 +57,19 @@ namespace Snap.Servicios
                     // Podemos registrar el mensaje de error para depuración
                     var errorContent = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error en la respuesta: {errorContent}");
+                    return Tuple.Create(false, errorContent);
                 }
-                return false;
+                return Tuple.Create(false, "Credenciales incorrectas");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al iniciar sesión: {ex.Message}");
-                return false;
+                return Tuple.Create(false, ex.Message);
             }
         }
+
+
+
         public async Task<SesionUsuario> ObtenerSesionActual()
         {
             if (_sesion.EstaAutenticado)

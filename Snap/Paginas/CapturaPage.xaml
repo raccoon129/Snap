@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Snap.Paginas.CapturaPage"
+             Title="Capturar">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Cabecera -->
+
+        <!-- Línea separadora -->
+        <BoxView Grid.Row="0"
+                 HeightRequest="1"
+                 Color="LightGray"
+                 VerticalOptions="End" />
+        <!-- Vista previa de la cámara -->
+        <Grid Grid.Row="1">
+            <Rectangle Fill="Black" />
+            <Image x:Name="ImgVistaPrevia" />
+            <!-- Cuando no hay cámara o acceso denegado -->
+            <Label x:Name="LblNoCamara"
+                   Text="Cámara no disponible"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   TextColor="White"
+                   IsVisible="False" />
+        </Grid>
+        <!-- Controles de cámara -->
+        <Grid Grid.Row="2"
+              Padding="20"
+              ColumnDefinitions="*,Auto,*">
+            <Button Grid.Column="0"
+                    Text="Galería"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    Clicked="OnGaleriaClicked"
+                    HorizontalOptions="Start" />
+            <Button Grid.Column="1"
+                    x:Name="BtnCapturar"
+                    Text="📷"
+                    FontSize="36"
+                    Clicked="OnCapturarClicked"
+                    CornerRadius="35"
+                    HeightRequest="70"
+                    WidthRequest="70"
+                    HorizontalOptions="Center" />
+            <Button Grid.Column="2"
+                    Text="Voltear"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    Clicked="OnVoltearClicked"
+                    HorizontalOptions="End" />
+        </Grid>
+    </Grid>
+</ContentPage>

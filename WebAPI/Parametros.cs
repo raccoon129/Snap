@@ -13,7 +13,7 @@ namespace WebAPI
 #else
         //En producción con Release
  
-        public static TipoDB TipoDB = TipoDB.MySQL;
+public static TipoDB TipoDB = TipoDB.MySQL;
 
 #endif
         public static FabricRepository FabricaRepository = new FabricRepository(CadenaDeConexion, TipoDB);

@@ -23,7 +23,10 @@ namespace Snap
             // Registro de páginas
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<InicioPage>();
-            // Registrar el resto de páginas cuando se implementen
+            builder.Services.AddTransient<CapturaPage>();
+            builder.Services.AddTransient<PerfilPage>();
+            builder.Services.AddTransient<PublicacionPage>();
+
 
 #if DEBUG
             builder.Logging.AddDebug();
