@@ -109,11 +109,124 @@ public ActionResult<List<publicacion>> ObtenerPublicacionesUsuario(string id)
         return BadRequest(ex.Message);
     }
 }
-}
+        // Verificar si un contacto (email o teléfono) ya existe
+        [HttpGet("verificarContacto/{contacto}")]
+        public ActionResult<bool> VerificarContactoExiste(string contacto)
+        {
+            try
+            {
+                var parametros = new Dictionary<string, string>
+                {
+                    { "p_contacto", contacto }
+                };
 
-public class LoginModel
-{
-public string Identificador { get; set; } // Email o teléfono
-public string Pin { get; set; }
-}
+                var resultado = _repositorio.EjecutarProcedimiento<dynamic>("sp_verificar_contacto_existe", parametros);
+
+                if (resultado != null && resultado.Count > 0)
+                {
+                    // Verificamos si el campo 'existe' es mayor a 0
+                    bool existe = Convert.ToInt32(resultado[0].existe) > 0;
+                    return Ok(existe);
+                }
+                else
+                {
+                    return BadRequest(_repositorio.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // Registrar usuario utilizando procedimiento almacenado con validaciones
+        [HttpPost("registro")]
+        public ActionResult<usuario> RegistrarUsuario([FromBody] RegistroModel modelo)
+        {
+            try
+            {
+                var parametros = new Dictionary<string, string>
+                {
+                    { "p_nombre_usuario", modelo.NombreUsuario },
+                    { "p_biografia", modelo.Biografia ?? string.Empty },
+                    { "p_email", modelo.Email ?? string.Empty },
+                    { "p_telefono", modelo.Telefono ?? string.Empty },
+                    { "p_pais", modelo.Pais ?? string.Empty },
+                    { "p_pin_contacto", modelo.PinContacto },
+                    { "p_estado", "activo" }
+                };
+
+                var resultado = _repositorio.EjecutarProcedimiento<usuario>("sp_registrar_usuario", parametros);
+
+                if (resultado != null && resultado.Count > 0)
+                {
+                    return Ok(resultado[0]);
+                }
+                else
+                {
+                    return BadRequest(_repositorio.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // Actualizar perfil del usuario
+        [HttpPut("actualizarPerfil/{id}")]
+        public ActionResult<usuario> ActualizarPerfil(string id, [FromBody] ActualizarPerfilModel modelo)
+        {
+            try
+            {
+                var parametros = new Dictionary<string, string>
+                {
+                    { "p_id_usuario", id },
+                    { "p_nombre_usuario", modelo.NombreUsuario },
+                    { "p_biografia", modelo.Biografia ?? string.Empty },
+                    { "p_pais", modelo.Pais ?? string.Empty },
+                    { "p_foto_perfil", modelo.FotoPerfil ?? string.Empty }
+                };
+
+                var resultado = _repositorio.EjecutarProcedimiento<usuario>("sp_actualizar_perfil", parametros);
+
+                if (resultado != null && resultado.Count > 0)
+                {
+                    return Ok(resultado[0]);
+                }
+                else
+                {
+                    return BadRequest(_repositorio.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+    }
+
+    public class LoginModel
+    {
+        public string Identificador { get; set; } // Email o teléfono
+        public string Pin { get; set; }
+    }
+
+    public class RegistroModel
+    {
+        public string NombreUsuario { get; set; }
+        public string? Biografia { get; set; }
+        public string? Email { get; set; }
+        public string? Telefono { get; set; }
+        public string? Pais { get; set; }
+        public string PinContacto { get; set; }
+    }
+
+    public class ActualizarPerfilModel
+    {
+        public string NombreUsuario { get; set; }
+        public string? Biografia { get; set; }
+        public string? Pais { get; set; }
+        public string? FotoPerfil { get; set; }
+    }
 }

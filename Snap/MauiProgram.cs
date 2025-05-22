@@ -27,6 +27,8 @@ namespace Snap
             builder.Services.AddTransient<PerfilPage>();
             builder.Services.AddTransient<PublicacionPage>();
 
+            builder.Services.AddTransient<RegistroPage>();
+
 
 #if DEBUG
             builder.Logging.AddDebug();

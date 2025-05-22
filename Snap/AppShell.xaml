@@ -5,9 +5,14 @@
        x:Class="Snap.AppShell"
        Title="Snap"
        Shell.FlyoutBehavior="Disabled">
+    <!-- Páginas de autenticación - fuera del TabBar -->
     <ShellContent Title="Login"
                   ContentTemplate="{DataTemplate local:LoginPage}"
                   Route="Login" />
+    <!--ShellContent Title="Registro"
+                  ContentTemplate="{DataTemplate local:RegistroPage}"
+                  Route="Registro" /> -->
+    <!-- Páginas principales - dentro del TabBar -->
     <TabBar Route="Principal">
         <Tab Title="Inicio"
              Icon="home.png">
@@ -15,14 +20,12 @@
                           ContentTemplate="{DataTemplate local:InicioPage}"
                           Route="Inicio" />
         </Tab>
-
         <Tab Title="Cámara"
              Icon="camera.png">
             <ShellContent Title="Capturar"
                           ContentTemplate="{DataTemplate local:CapturaPage}"
                           Route="Capturar" />
         </Tab>
-
         <Tab Title="Perfil"
              Icon="user.png">
             <ShellContent Title="Perfil"

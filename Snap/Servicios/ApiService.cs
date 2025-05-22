@@ -112,5 +112,41 @@ namespace Snap.Servicios
             string sesionJson = JsonSerializer.Serialize(_sesion);
             await SecureStorage.SetAsync("sesion_usuario", sesionJson);
         }
+
+
+        //////
+        ///
+
+        public async Task<Tuple<bool, string>> RegistrarUsuario(usuario nuevoUsuario)
+        {
+            try
+            {
+                // Realizar la petición POST para crear el usuario
+                var response = await _httpClient.PostAsJsonAsync("usuario", nuevoUsuario);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var usuarioCreado = await response.Content.ReadFromJsonAsync<usuario>();
+                    if (usuarioCreado != null)
+                    {
+                        return new Tuple<bool, string>(true, "Usuario registrado correctamente");
+                    }
+                }
+
+                // Si hay un error, intentar obtener el mensaje
+                var errorContent = await response.Content.ReadAsStringAsync();
+                return new Tuple<bool, string>(false, string.IsNullOrEmpty(errorContent)
+                    ? "Error al registrar usuario"
+                    : errorContent);
+            }
+            catch (Exception ex)
+            {
+                return new Tuple<bool, string>(false, $"Error: {ex.Message}");
+            }
+        }
     }
+
+
+
+
 }

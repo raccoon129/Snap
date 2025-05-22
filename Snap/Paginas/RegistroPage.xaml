@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Snap.Paginas.RegistroPage"
+             Title="Registrarse">
+    <ScrollView>
+        <Grid RowDefinitions="Auto,*,Auto"
+              Padding="20">
+            <!-- Cabecera -->
+            <VerticalStackLayout Grid.Row="0"
+                                 Spacing="10">
+                <Image Source="logo.png"
+                       HeightRequest="100"
+                       HorizontalOptions="Center" />
+                <Label Text="Snap"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+                <Label x:Name="LblPasoActual"
+                       Text="Paso 1: Datos de contacto"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,20" />
+            </VerticalStackLayout>
+            <!-- Contenido principal - cambia según el paso -->
+            <Grid Grid.Row="1"
+                  x:Name="ContenidoPasos">
+                <!-- Paso 1: Datos de contacto -->
+                <StackLayout x:Name="Paso1"
+                             IsVisible="True"
+                             Spacing="20"
+                             VerticalOptions="Center">
+                    <Label Text="Ingresa tu correo o número de teléfono:"
+                           FontSize="16" />
+                    <Entry x:Name="EntryContacto"
+                           Placeholder="Correo o teléfono"
+                           Keyboard="Email"
+                           Margin="0,5,0,20" />
+                    <Label Text="Este será tu método para iniciar sesión en Snap"
+                           TextColor="Gray"
+                           FontSize="14" />
+                </StackLayout>
+                <!-- Paso 2: PIN generado -->
+                <StackLayout x:Name="Paso2"
+                             IsVisible="False"
+                             Spacing="20"
+                             VerticalOptions="Center">
+                    <Label Text="¡PIN generado con éxito!"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+                    <Label Text="Hemos creado un PIN único para tu cuenta:"
+                           FontSize="16" />
+                    <Frame BackgroundColor="#f0f0f0"
+                           Padding="15"
+                           CornerRadius="10"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,10">
+                        <Label x:Name="LblPinGenerado"
+                               Text="ABC12"
+                               FontSize="24"
+                               FontAttributes="Bold" />
+                    </Frame>
+                    <Label Text="¡Guárdalo bien! Lo necesitarás para iniciar sesión."
+                           TextColor="Gray"
+                           FontSize="14" />
+                </StackLayout>
+                <!-- Paso 3: Información de perfil -->
+                <StackLayout x:Name="Paso3"
+                             IsVisible="False"
+                             Spacing="20"
+                             VerticalOptions="Center">
+                    <Label Text="Configura tu perfil:"
+                           FontSize="16" />
+                    <Label Text="Nombre de usuario:"
+                           FontSize="14" />
+                    <Entry x:Name="EntryNombreUsuario"
+                           Placeholder="@nombre_usuario"
+                           MaxLength="30" />
+                    <Label Text="Biografía (opcional):"
+                           FontSize="14" />
+                    <Editor x:Name="EditorBiografia"
+                            Placeholder="Cuéntanos sobre ti..."
+                            HeightRequest="100"
+                            MaxLength="200"
+                            AutoSize="TextChanges" />
+                    <Label Text="País (opcional):"
+                           FontSize="14" />
+                    <Entry x:Name="EntryPais"
+                           Placeholder="País" />
+                </StackLayout>
+            </Grid>
+            <!-- Botones de navegación -->
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="15"
+                  Margin="0,20,0,0">
+                <Button x:Name="BtnAnterior"
+                        Text="Anterior"
+                        Grid.Column="0"
+                        IsEnabled="False"
+                        Clicked="OnAnteriorClicked" />
+                <Button x:Name="BtnSiguiente"
+                        Text="Siguiente"
+                        Grid.Column="1"
+                        Clicked="OnSiguienteClicked" />
+            </Grid>
+            <!-- Indicador de carga -->
+            <ActivityIndicator x:Name="Cargando"
+                               IsRunning="False"
+                               IsVisible="False"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"
+                               Grid.RowSpan="3" />
+        </Grid>
+    </ScrollView>
+</ContentPage>

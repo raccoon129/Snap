@@ -66,6 +66,8 @@ public partial class LoginPage : ContentPage
     private async void OnRegistrateClicked(object sender, EventArgs e)
     {
         // Navegar a la página de registro (cuando se implemente)
-        await DisplayAlert("Registro", "Funcionalidad de registro pendiente", "OK");
+        //await DisplayAlert("Registro", "Funcionalidad de registro pendiente", "OK");
+
+        await Shell.Current.GoToAsync("///Registro");
     }
 }
