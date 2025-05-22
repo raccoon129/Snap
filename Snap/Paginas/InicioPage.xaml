@@ -5,7 +5,10 @@
              Title="Recuerdos">
     <Grid RowDefinitions="Auto,*">
         <!-- Cabecera -->
-
+        <ActivityIndicator x:Name="LoadingIndicator"
+                           IsRunning="False"
+                           IsVisible="False"
+                           HorizontalOptions="Center" />
         <!-- Línea separadora -->
         <BoxView Grid.Row="0"
                  HeightRequest="1"
@@ -55,6 +58,9 @@
                                 <Grid HeightRequest="300">
                                     <Image Source="{Binding UrlFoto}"
                                            Aspect="AspectFill" />
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnPublicacionTapped" />
+                                    </Grid.GestureRecognizers>
                                 </Grid>
                             </Frame>
                             <!-- Interacciones -->

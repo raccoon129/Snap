@@ -38,54 +38,59 @@ public partial class InicioPage : ContentPage
         {
             _publicaciones.Clear();
 
-            // Simulamos carga con un delay
-            await Task.Delay(1000);
+            // Mostrar indicador de carga
+            LoadingIndicator.IsRunning = true;
+            LoadingIndicator.IsVisible = true;
 
-            // Datos de prueba según el wireframe
-            _publicaciones.Add(new PublicacionViewModel
-            {
-                NombreUsuario = "@nombre_random",
-                UrlFotoPerfil = "https://randomuser.me/api/portraits/men/32.jpg",
-                TiempoPublicacion = "Hace 1 hora",
-                UrlFoto = "https://picsum.photos/500/500?random=1",
-                NumeroLikes = 3,
-                NumeroComentarios = 1,
-                Descripcion = "Aquinombre el tag..."
-            });
+            // Obtener las publicaciones reales de la API
+            var publicaciones = await _apiService.ObtenerPublicaciones();
 
-            _publicaciones.Add(new PublicacionViewModel
+            if (publicaciones != null && publicaciones.Count > 0)
             {
-                NombreUsuario = "@nombre_random",
-                UrlFotoPerfil = "https://randomuser.me/api/portraits/men/44.jpg",
-                TiempoPublicacion = "Hace 1 hora",
-                UrlFoto = "https://picsum.photos/500/500?random=2",
-                NumeroLikes = 5,
-                NumeroComentarios = 2,
-                Descripcion = "Aquinombre el tag..."
-            });
+                foreach (var pub in publicaciones)
+                {
+                    _publicaciones.Add(pub);
+                }
+            }
+            else
+            {
+                // No mostrar mensaje si no hay publicaciones, simplemente dejarlo vacío
+                // El EmptyView del CollectionView ya mostrará un mensaje adecuado
+            }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudieron cargar las publicaciones: {ex.Message}", "OK");
+            Console.WriteLine($"Error al cargar publicaciones: {ex.Message}");
+            // No mostrar el error al usuario a menos que sea necesario
+            // await DisplayAlert("Error", $"No se pudieron cargar las publicaciones: {ex.Message}", "OK");
+        }
+        finally
+        {
+            // Ocultar indicador de carga
+            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsVisible = false;
+            RefrescarContenido.IsRefreshing = false;
         }
     }
 
     private async void RefrescarContenido_Refreshing(object sender, EventArgs e)
     {
         await CargarPublicaciones();
-        RefrescarContenido.IsRefreshing = false;
     }
-}
 
-public class PublicacionViewModel
-{
-    public string NombreUsuario { get; set; } = "";
-    public string UrlFotoPerfil { get; set; } = "";
-    public string TiempoPublicacion { get; set; } = "";
-    public string UrlFoto { get; set; } = "";
-    public int NumeroLikes { get; set; }
-    public int NumeroComentarios { get; set; }
-    public string Descripcion { get; set; } = "";
-    public string Ubicacion { get; set; } = "";
-    public int Id { get; internal set; }
+    private async void OnPublicacionTapped(object sender, TappedEventArgs e)
+    {
+        if (sender is Grid grid && grid.BindingContext is PublicacionViewModel publicacion)
+        {
+            try
+            {
+                // Navegar a la página de detalle de la publicación
+                await Shell.Current.GoToAsync($"PublicacionPage?id={publicacion.Id}");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"No se pudo abrir la publicación: {ex.Message}", "OK");
+            }
+        }
+    }
 }
