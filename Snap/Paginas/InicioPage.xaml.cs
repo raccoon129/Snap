@@ -49,6 +49,16 @@ public partial class InicioPage : ContentPage
             {
                 foreach (var pub in publicaciones)
                 {
+                    // Verificar si la publicación es favorita para el usuario actual
+                    // Primero obtenemos las fotos de la publicación
+                    var fotos = await _apiService.ObtenerFotosPublicacion(pub.Id);
+                    if (fotos != null && fotos.Count > 0)
+                    {
+                        // Verificamos si la primera foto es favorita
+                        pub.EsFavorito = await _apiService.EsFavorito(fotos[0].id_foto);
+                    }
+
+                    // Añadimos la publicación a la colección
                     _publicaciones.Add(pub);
                 }
             }
@@ -90,6 +100,41 @@ public partial class InicioPage : ContentPage
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"No se pudo abrir la publicación: {ex.Message}", "OK");
+            }
+        }
+    }
+
+    private async void OnLikeButtonTapped(object sender, EventArgs e)
+    {
+        if (sender is ImageButton button && button.BindingContext is PublicacionViewModel publicacion)
+        {
+            try
+            {
+                // Obtener las fotos de la publicación
+                var fotos = await _apiService.ObtenerFotosPublicacion(publicacion.Id);
+                if (fotos == null || fotos.Count == 0)
+                {
+                    return;
+                }
+
+                int fotoId = fotos[0].id_foto;
+
+                // Toggle el estado de favorito
+                bool resultado = await _apiService.ToggleFavorito(fotoId);
+
+                // Actualizar el estado en el modelo de vista
+                publicacion.EsFavorito = !publicacion.EsFavorito;
+
+                // Actualizar el icono
+                button.Source = publicacion.EsFavorito ? "starsolid.png" : "starregular.png";
+
+                // Actualizar el contador de likes
+                publicacion.NumeroLikes += publicacion.EsFavorito ? 1 : -1;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al procesar favorito: {ex.Message}");
+                // Opcionalmente mostrar un mensaje al usuario
             }
         }
     }

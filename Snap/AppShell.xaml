@@ -15,19 +15,19 @@
     <!-- Páginas principales - dentro del TabBar -->
     <TabBar Route="Principal">
         <Tab Title="Inicio"
-             Icon="home.png">
+             Icon="commentsolid.svg">
             <ShellContent Title="Recuerdos"
                           ContentTemplate="{DataTemplate local:InicioPage}"
                           Route="Inicio" />
         </Tab>
-        <Tab Title="Cámara"
-             Icon="camera.png">
+        <Tab Title="Capturar"
+             Icon="camerasolid.svg">
             <ShellContent Title="Capturar"
                           ContentTemplate="{DataTemplate local:CapturaPage}"
                           Route="Capturar" />
         </Tab>
         <Tab Title="Perfil"
-             Icon="user.png">
+             Icon="usersolid.svg">
             <ShellContent Title="Perfil"
                           ContentTemplate="{DataTemplate local:PerfilPage}"
                           Route="Perfil" />

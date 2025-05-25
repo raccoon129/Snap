@@ -7,7 +7,7 @@
         <VerticalStackLayout Spacing="25"
                              Padding="30,0"
                              VerticalOptions="Center">
-            <Image Source="logo.png"
+            <Image Source="logo.svg"
                    HeightRequest="150"
                    HorizontalOptions="Center" />
             <Label Text="¡Bienvenido a Snap!"

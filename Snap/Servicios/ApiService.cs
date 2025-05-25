@@ -962,6 +962,10 @@ namespace Snap.Servicios
         public int NumeroComentarios { get; set; }
         public string Descripcion { get; set; } = "";
         public string Ubicacion { get; set; } = "";
+        public bool EsFavorito { get; set; } = false;
+
+        // Propiedad para manejar dinámicamente el ícono de favorito
+        public string IconoFavorito => EsFavorito ? "starsolid.png" : "starregular.png";
     }
 
     public class ComentarioViewModel

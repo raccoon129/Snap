@@ -7,12 +7,10 @@
         <Grid RowDefinitions="Auto,Auto,*,Auto"
               Padding="0,0,0,15">
             <!-- Cabecera -->
-
-                <ActivityIndicator x:Name="LoadingIndicator"
-                                   Grid.Column="1"
-                                   IsRunning="False"
-                                   IsVisible="False" />
-            
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               Grid.Column="1"
+                               IsRunning="False"
+                               IsVisible="False" />
             <!-- Línea separadora -->
             <BoxView Grid.Row="0"
                      HeightRequest="1"
@@ -57,13 +55,13 @@
                 <HorizontalStackLayout Spacing="15"
                                        Margin="15,5">
                     <ImageButton x:Name="BtnMeGusta"
-                                 Source="like.png"
+                                 Source="starregular.png"
                                  HeightRequest="24"
                                  BackgroundColor="Transparent"
                                  Clicked="OnMeGustaClicked" />
                     <Label x:Name="LblNumeroLikes"
                            VerticalOptions="Center" />
-                    <ImageButton Source="comment.png"
+                    <ImageButton Source="commentregular.png"
                                  HeightRequest="24"
                                  BackgroundColor="Transparent"
                                  Margin="10,0,0,0" />
@@ -94,7 +92,7 @@
                                        CornerRadius="16"
                                        IsClippedToBounds="True"
                                        Padding="0">
-                                    <Image Source="{Binding UrlFotoPerfil}"
+                                    <Image Source="{Binding UrlFotoPerfil, TargetNullValue='who.jpg'}"
                                            Aspect="AspectFill" />
                                 </Frame>
                                 <StackLayout Grid.Column="1"
@@ -105,11 +103,11 @@
                                                 <Span Text="{Binding NombreUsuario}"
                                                       FontAttributes="Bold" />
                                                 <Span Text=" " />
-                                                <Span Text="{Binding Comentario}" />
+                                                <Span Text="{Binding Contenido}" />
                                             </FormattedString>
                                         </Label.FormattedText>
                                     </Label>
-                                    <Label Text="{Binding TiempoComentario}"
+                                    <Label Text="{Binding FechaComentario}"
                                            TextColor="Gray"
                                            FontSize="Small" />
                                 </StackLayout>

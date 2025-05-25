@@ -154,17 +154,16 @@ public partial class PublicacionPage : ContentPage
         catch (Exception ex)
         {
             Console.WriteLine($"Error al cargar comentarios: {ex.Message}");
-            // No mostrar el error al usuario para no interrumpir la experiencia
+            // No mostrar el error al usuario 
         }
     }
 
     private void ActualizarIconoFavorito()
     {
         // Actualizar el icono según el estado actual
-        // Aquí asumo que tienes un ImageButton llamado BtnMeGusta
         if (BtnMeGusta != null)
         {
-            BtnMeGusta.Source = _esFavorito ? "heart_filled.png" : "heart_outline.png";
+            BtnMeGusta.Source = _esFavorito ? "starsolid.png" : "starregular.png";
         }
     }
 
