@@ -4,7 +4,7 @@
              x:Class="Snap.Paginas.PerfilPage"
              Title="Perfil">
     <Grid RowDefinitions="Auto,Auto,Auto,*">
-
+        
         <!-- Línea separadora -->
         <BoxView Grid.Row="0"
                  HeightRequest="1"
@@ -24,6 +24,11 @@
                            Aspect="AspectFill" />
                 </Frame>
             </HorizontalStackLayout>
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               IsRunning="False"
+                               IsVisible="False"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
             <Label Grid.Row="1"
                    x:Name="LblNombreUsuario"
                    HorizontalOptions="Center"
@@ -106,6 +111,14 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            <!-- Mensaje cuando no hay recuerdos -->
+            <Label x:Name="EmptyRecuerdosLabel"
+                   Text="No tienes publicaciones aún. Crea tu primera publicación."
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Margin="20"
+                   TextColor="Gray"
+                   IsVisible="False" />
             <!-- Vista de favoritos -->
             <CollectionView x:Name="GridFavoritos"
                             IsVisible="false"
@@ -125,6 +138,14 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            <!-- Mensaje cuando no hay favoritos -->
+            <Label x:Name="EmptyFavoritosLabel"
+                   Text="No tienes publicaciones favoritas aún. Da like a publicaciones para guardarlas aquí."
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Margin="20"
+                   TextColor="Gray"
+                   IsVisible="False" />
             <!-- Vista de ajustes -->
             <StackLayout x:Name="ViewAjustes"
                          IsVisible="false"

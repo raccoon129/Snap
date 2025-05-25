@@ -5,28 +5,104 @@
              Title="Capturar">
     <Grid RowDefinitions="Auto,*,Auto">
         <!-- Cabecera -->
-
+        <Grid Grid.Row="0"
+              Padding="15,10"
+              ColumnDefinitions="Auto,*,Auto">
+            <Button x:Name="BtnCancelar"
+                    Text="Cancelar"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    Clicked="OnCancelarClicked"
+                    IsVisible="False"
+                    Grid.Column="0" />
+            <Label Text="Nueva Publicación"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   TextColor="White"
+                   Grid.Column="1"
+                   x:Name="LblTitulo"
+                   IsVisible="False" />
+            <Button x:Name="BtnPublicar"
+                    Text="Publicar"
+                    BackgroundColor="Transparent"
+                    TextColor="#007AFF"
+                    Clicked="OnPublicarClicked"
+                    IsVisible="False"
+                    Grid.Column="2" />
+        </Grid>
         <!-- Línea separadora -->
         <BoxView Grid.Row="0"
                  HeightRequest="1"
                  Color="LightGray"
                  VerticalOptions="End" />
-        <!-- Vista previa de la cámara -->
-        <Grid Grid.Row="1">
-            <Rectangle Fill="Black" />
-            <Image x:Name="ImgVistaPrevia" />
-            <!-- Cuando no hay cámara o acceso denegado -->
-            <Label x:Name="LblNoCamara"
-                   Text="Cámara no disponible"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   TextColor="White"
-                   IsVisible="False" />
+        <!-- Contenido Principal -->
+        <Grid Grid.Row="1"
+              x:Name="MainContent">
+            <!-- Vista previa de la cámara -->
+            <Grid x:Name="CamaraGrid"
+                  IsVisible="True">
+                <Rectangle Fill="Black" />
+                <Image x:Name="ImgVistaPrevia" />
+                <!-- Cuando no hay cámara o acceso denegado -->
+                <Label x:Name="LblNoCamara"
+                       Text="Cámara no disponible"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       TextColor="White"
+                       IsVisible="False" />
+            </Grid>
+            <!-- Editor de publicación -->
+            <Grid x:Name="EditorGrid"
+                  IsVisible="False"
+                  Padding="15"
+                  BackgroundColor="Black">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <!-- Previsualización de foto (si existe) -->
+                    <Frame x:Name="FrameFotoPreview"
+                           Grid.Row="0"
+                           HeightRequest="250"
+                           Margin="0,0,0,15"
+                           Padding="0"
+                           IsClippedToBounds="True"
+                           CornerRadius="10"
+                           IsVisible="False">
+                        <Image x:Name="ImgFotoPreview"
+                               Aspect="AspectFill" />
+                    </Frame>
+                    <!-- Editor de texto -->
+                    <Editor x:Name="EditorDescripcion"
+                            Grid.Row="1"
+                            Placeholder="¿Qué estás pensando?"
+                            TextColor="White"
+                            PlaceholderColor="LightGray"
+                            BackgroundColor="Transparent"
+                            AutoSize="TextChanges"
+                            MaxLength="500" />
+                    <!-- Ubicación -->
+                    <Grid Grid.Row="2"
+                          ColumnDefinitions="Auto,*">
+                        <Image Source="location.png"
+                               WidthRequest="20"
+                               HeightRequest="20"
+                               VerticalOptions="Center"
+                               Grid.Column="0" />
+                        <Entry x:Name="EntryUbicacion"
+                               Placeholder="Añade una ubicación"
+                               PlaceholderColor="LightGray"
+                               TextColor="White"
+                               BackgroundColor="Transparent"
+                               Grid.Column="1" />
+                    </Grid>
+                </Grid>
+            </Grid>
         </Grid>
         <!-- Controles de cámara -->
         <Grid Grid.Row="2"
               Padding="20"
-              ColumnDefinitions="*,Auto,*">
+              ColumnDefinitions="*,Auto,*"
+              x:Name="CamaraControles">
             <Button Grid.Column="0"
                     Text="Galería"
                     BackgroundColor="Transparent"
@@ -42,12 +118,27 @@
                     HeightRequest="70"
                     WidthRequest="70"
                     HorizontalOptions="Center" />
-            <Button Grid.Column="2"
-                    Text="Voltear"
-                    BackgroundColor="Transparent"
-                    TextColor="White"
-                    Clicked="OnVoltearClicked"
-                    HorizontalOptions="End" />
+            <Grid Grid.Column="2"
+                  HorizontalOptions="End">
+                <Button Text="Voltear"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        Clicked="OnVoltearClicked"
+                        x:Name="BtnVoltear" />
+                <Button Text="Aa"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        Clicked="OnTextoClicked"
+                        x:Name="BtnTexto" />
+            </Grid>
         </Grid>
+        <!-- Indicador de carga -->
+        <ActivityIndicator Grid.Row="1"
+                           x:Name="LoadingIndicator"
+                           IsRunning="False"
+                           IsVisible="False"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           Color="White" />
     </Grid>
 </ContentPage>

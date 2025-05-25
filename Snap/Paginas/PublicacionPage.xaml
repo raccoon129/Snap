@@ -7,20 +7,12 @@
         <Grid RowDefinitions="Auto,Auto,*,Auto"
               Padding="0,0,0,15">
             <!-- Cabecera -->
-            <Grid Grid.Row="0"
-                  Padding="15,10"
-                  ColumnDefinitions="*,Auto">
-                <Label Text="Publicación"
-                       FontSize="24"
-                       FontAttributes="Bold"
-                       VerticalOptions="Center" />
-                <ImageButton Grid.Column="1"
-                             Source="notification.png"
-                             HeightRequest="28"
-                             WidthRequest="28"
-                             BackgroundColor="Transparent"
-                             Padding="5" />
-            </Grid>
+
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   Grid.Column="1"
+                                   IsRunning="False"
+                                   IsVisible="False" />
+            
             <!-- Línea separadora -->
             <BoxView Grid.Row="0"
                      HeightRequest="1"
@@ -64,9 +56,11 @@
                 <!-- Interacciones -->
                 <HorizontalStackLayout Spacing="15"
                                        Margin="15,5">
-                    <ImageButton Source="like.png"
+                    <ImageButton x:Name="BtnMeGusta"
+                                 Source="like.png"
                                  HeightRequest="24"
-                                 BackgroundColor="Transparent" />
+                                 BackgroundColor="Transparent"
+                                 Clicked="OnMeGustaClicked" />
                     <Label x:Name="LblNumeroLikes"
                            VerticalOptions="Center" />
                     <ImageButton Source="comment.png"
@@ -131,13 +125,15 @@
                   VerticalOptions="End">
                 <Frame Padding="15,0"
                        CornerRadius="20">
-                    <Entry Placeholder="Escribe un comentario..."
+                    <Entry x:Name="EntryComentario"
+                           Placeholder="Escribe un comentario..."
                            VerticalOptions="Center" />
                 </Frame>
                 <Button Grid.Column="1"
                         Text="Enviar"
                         Margin="5,0,0,0"
-                        CornerRadius="20" />
+                        CornerRadius="20"
+                        Clicked="OnEnviarComentarioClicked" />
             </Grid>
         </Grid>
     </ScrollView>

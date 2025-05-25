@@ -8,6 +8,7 @@ public partial class PerfilPage : ContentPage
     private readonly ApiService _apiService;
     private ObservableCollection<PublicacionViewModel> _publicaciones = new ObservableCollection<PublicacionViewModel>();
     private ObservableCollection<PublicacionViewModel> _favoritos = new ObservableCollection<PublicacionViewModel>();
+    private int usuarioId;
 
     public PerfilPage(ApiService apiService)
     {
@@ -21,62 +22,117 @@ public partial class PerfilPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        LoadingIndicator.IsRunning = true;
+        LoadingIndicator.IsVisible = true;
+
         await CargarDatosUsuario();
         await CargarPublicaciones();
+
+        LoadingIndicator.IsRunning = false;
+        LoadingIndicator.IsVisible = false;
+
+        // Por defecto mostrar la pestaña de recuerdos
+        MostrarPestana(0);
     }
 
     private async Task CargarDatosUsuario()
     {
-        var sesion = await _apiService.ObtenerSesionActual();
-        if (!sesion.SesionActiva || sesion.Usuario == null)
+        try
         {
-            // Si no hay sesión activa, volver al login
-            await Shell.Current.GoToAsync("//Login");
-            return;
+            var sesion = await _apiService.ObtenerSesionActual();
+            if (!sesion.SesionActiva || sesion.Usuario == null)
+            {
+                // Si no hay sesión activa, volver al login
+                await Shell.Current.GoToAsync("//Login");
+                return;
+            }
+
+            usuarioId = sesion.Usuario.id_usuario;
+
+            // Cargar datos del usuario
+            ImgPerfil.Source = !string.IsNullOrEmpty(sesion.Usuario.foto_perfil)
+                ? sesion.Usuario.foto_perfil
+                : "who.jpg";
+
+            LblNombreUsuario.Text = $"@{sesion.Usuario.nombre_usuario}";
+            LblBiografia.Text = !string.IsNullOrEmpty(sesion.Usuario.biografia)
+                ? sesion.Usuario.biografia
+                : "No hay biografía disponible";
         }
-
-        // Cargar datos del usuario
-        ImgPerfil.Source = !string.IsNullOrEmpty(sesion.Usuario.foto_perfil)
-            ? sesion.Usuario.foto_perfil
-            : "default_profile.png";
-
-        LblNombreUsuario.Text = $"@{sesion.Usuario.nombre_usuario}";
-        LblBiografia.Text = !string.IsNullOrEmpty(sesion.Usuario.biografia)
-            ? sesion.Usuario.biografia
-            : "Lorem ipsum dolor sit amet, consectetur adipiscing elit...";
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar datos de usuario: {ex.Message}");
+            ImgPerfil.Source = "who.jpg";
+            LblNombreUsuario.Text = "@usuario";
+            LblBiografia.Text = "Error al cargar perfil";
+        }
     }
 
     private async Task CargarPublicaciones()
     {
         try
         {
-            // Cargar publicaciones (recuerdos) del usuario
+            // Cargar publicaciones del usuario
             _publicaciones.Clear();
+            var publicacionesUsuario = await _apiService.ObtenerPublicacionesDeUsuario(usuarioId);
 
-            // Datos de ejemplo
-            for (int i = 1; i <= 9; i++)
+            if (publicacionesUsuario != null && publicacionesUsuario.Count > 0)
             {
-                _publicaciones.Add(new PublicacionViewModel
+                foreach (var pub in publicacionesUsuario)
                 {
-                    Id = i,
-                    UrlFoto = $"https://picsum.photos/500/500?random={i}"
-                });
+                    if (!string.IsNullOrEmpty(pub.UrlFoto))
+                    {
+                        _publicaciones.Add(pub);
+                    }
+                }
+            }
+
+            // Mostrar mensaje si no hay publicaciones
+            if (_publicaciones.Count == 0)
+            {
+                EmptyRecuerdosLabel.IsVisible = true;
+            }
+            else
+            {
+                EmptyRecuerdosLabel.IsVisible = false;
             }
 
             // Cargar favoritos
             _favoritos.Clear();
-            for (int i = 10; i <= 15; i++)
+            var fotos = await _apiService.ObtenerFavoritos();
+
+            // Convertir fotos a PublicacionViewModel para mostrarlas
+            if (fotos != null && fotos.Count > 0)
             {
-                _favoritos.Add(new PublicacionViewModel
+                foreach (var foto in fotos)
                 {
-                    Id = i,
-                    UrlFoto = $"https://picsum.photos/500/500?random={i}"
-                });
+                    if (foto != null && !string.IsNullOrEmpty(foto.url_foto))
+                    {
+                        _favoritos.Add(new PublicacionViewModel
+                        {
+                            Id = foto.id_foto,
+                            UrlFoto = foto.url_foto,
+                            IdUsuario = foto.id_usuario
+                        });
+                    }
+                }
+            }
+
+            // Mostrar mensaje si no hay favoritos
+            if (_favoritos.Count == 0)
+            {
+                EmptyFavoritosLabel.IsVisible = true;
+            }
+            else
+            {
+                EmptyFavoritosLabel.IsVisible = false;
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudieron cargar las publicaciones: {ex.Message}", "OK");
+            Console.WriteLine($"Error al cargar publicaciones: {ex.Message}");
+            EmptyRecuerdosLabel.IsVisible = true;
+            EmptyFavoritosLabel.IsVisible = true;
         }
     }
 
@@ -92,7 +148,9 @@ public partial class PerfilPage : ContentPage
         IndicadorAjustes.BackgroundColor = Colors.Transparent;
 
         GridRecuerdos.IsVisible = false;
+        EmptyRecuerdosLabel.IsVisible = false;
         GridFavoritos.IsVisible = false;
+        EmptyFavoritosLabel.IsVisible = false;
         ViewAjustes.IsVisible = false;
 
         // Mostrar pestaña seleccionada
@@ -101,12 +159,14 @@ public partial class PerfilPage : ContentPage
             BtnRecuerdos.TextColor = (Color)Application.Current.Resources["Primary"];
             IndicadorRecuerdos.BackgroundColor = (Color)Application.Current.Resources["Primary"];
             GridRecuerdos.IsVisible = true;
+            EmptyRecuerdosLabel.IsVisible = _publicaciones.Count == 0;
         }
         else if (pestana == 1)
         {
             BtnFavoritos.TextColor = (Color)Application.Current.Resources["Primary"];
             IndicadorFavoritos.BackgroundColor = (Color)Application.Current.Resources["Primary"];
             GridFavoritos.IsVisible = true;
+            EmptyFavoritosLabel.IsVisible = _favoritos.Count == 0;
         }
         else if (pestana == 2)
         {
@@ -133,7 +193,7 @@ public partial class PerfilPage : ContentPage
 
     private async void OnEditarClicked(object sender, EventArgs e)
     {
-        await DisplayAlert("Editar perfil", "Funcionalidad en desarrollo", "OK");
+        await Shell.Current.GoToAsync("EditarPerfilPage");
     }
 
     private async void OnCerrarSesionClicked(object sender, EventArgs e)

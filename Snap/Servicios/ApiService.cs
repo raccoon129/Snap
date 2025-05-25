@@ -207,7 +207,45 @@ namespace Snap.Servicios
         #endregion
 
         #region Publicaciones
+        public async Task<Tuple<bool, string, int>> CrearPublicacionSinFoto(string descripcion, string ubicacion)
+        {
+            try
+            {
+                var sesion = await ObtenerSesionActual();
+                if (!sesion.SesionActiva || sesion.Usuario == null)
+                {
+                    return Tuple.Create(false, "Usuario no autenticado", 0);
+                }
 
+                var publicacionModel = new publicacion
+                {
+                    id_usuario = sesion.Usuario.id_usuario,
+                    descripcion = descripcion ?? string.Empty,
+                    ubicacion = ubicacion ?? string.Empty,
+                    fecha_publicacion = DateTime.Now
+                };
+
+                var response = await _httpClient.PostAsJsonAsync("publicacion", publicacionModel);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var publicacionCreada = await response.Content.ReadFromJsonAsync<publicacion>();
+                    if (publicacionCreada != null)
+                    {
+                        return Tuple.Create(true, "Publicación creada con éxito", publicacionCreada.id_publicacion);
+                    }
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                return Tuple.Create(false, string.IsNullOrEmpty(errorContent)
+                    ? "Error al crear publicación"
+                    : errorContent, 0);
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, $"Error: {ex.Message}", 0);
+            }
+        }
         public async Task<List<PublicacionViewModel>> ObtenerPublicaciones()
         {
             try

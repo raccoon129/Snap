@@ -1,3 +1,4 @@
+using Snap.Servicios;
 using System.Collections.ObjectModel;
 
 namespace Snap.Paginas;
@@ -5,8 +6,18 @@ namespace Snap.Paginas;
 [QueryProperty(nameof(PublicacionId), "id")]
 public partial class PublicacionPage : ContentPage
 {
+    private readonly ApiService _apiService;
     private int _publicacionId;
+    private int _fotoId;
     private ObservableCollection<ComentarioViewModel> _comentarios = new ObservableCollection<ComentarioViewModel>();
+    private bool _esFavorito = false;
+
+    public PublicacionPage(ApiService apiService)
+    {
+        InitializeComponent();
+        _apiService = apiService;
+        ListaComentarios.ItemsSource = _comentarios;
+    }
 
     public int PublicacionId
     {
@@ -18,54 +29,204 @@ public partial class PublicacionPage : ContentPage
         }
     }
 
-    public PublicacionPage()
-    {
-        InitializeComponent();
-        ListaComentarios.ItemsSource = _comentarios;
-    }
-
     private async void CargarPublicacion()
     {
         try
         {
-            // En una implementación real, cargaríamos los datos de la API
-            // Por ahora usamos datos de ejemplo basados en el wireframe
-            ImgPerfilUsuario.Source = "https://randomuser.me/api/portraits/men/32.jpg";
-            LblNombreUsuario.Text = "@nombre_random";
-            LblTiempoPublicacion.Text = "Hace 1 hora";
-            ImgPublicacion.Source = "https://picsum.photos/500/500?random=1";
-            LblNumeroLikes.Text = "3";
-            LblNumeroComentarios.Text = "1";
-            LblDescripcion.Text = "Aquinombre el tag...";
-
-            // Comentarios de ejemplo
-            _comentarios.Add(new ComentarioViewModel
+            // Mostrar indicador de carga (si existe)
+            if (LoadingIndicator != null)
             {
-                NombreUsuario = "@usuario1",
-                UrlFotoPerfil = "https://randomuser.me/api/portraits/women/44.jpg",
-                Comentario = "¡Muy buena foto!",
-                TiempoComentario = "Hace 30 minutos"
-            });
+                LoadingIndicator.IsRunning = true;
+                LoadingIndicator.IsVisible = true;
+            }
 
-            _comentarios.Add(new ComentarioViewModel
+            // Obtener las fotos de la publicación
+            var fotos = await _apiService.ObtenerFotosPublicacion(_publicacionId);
+            if (fotos == null || fotos.Count == 0)
             {
-                NombreUsuario = "@usuario2",
-                UrlFotoPerfil = "https://randomuser.me/api/portraits/men/44.jpg",
-                Comentario = "Me encanta esta vista",
-                TiempoComentario = "Hace 10 minutos"
-            });
+                ImgPublicacion.Source = "imagennodisponible.png";
+                await DisplayAlert("Error", "No se encontraron fotos para esta publicación", "OK");
+                return;
+            }
+
+            // Tomar la primera foto (generalmente solo habrá una por publicación)
+            var foto = fotos[0];
+            _fotoId = foto.id_foto;
+
+            // Intentar obtener la publicación del feed
+            var publicaciones = await _apiService.ObtenerPublicaciones();
+            var publicacion = publicaciones.FirstOrDefault(p => p.Id == _publicacionId);
+
+            if (publicacion == null)
+            {
+                // Si no se encuentra en el feed, intentar obtenerla directamente
+                var sesion = await _apiService.ObtenerSesionActual();
+                if (sesion.SesionActiva && sesion.Usuario != null)
+                {
+                    var publicacionesUsuario = await _apiService.ObtenerPublicacionesDeUsuario(sesion.Usuario.id_usuario);
+                    publicacion = publicacionesUsuario.FirstOrDefault(p => p.Id == _publicacionId);
+                }
+            }
+
+            if (publicacion != null)
+            {
+                // Cargar los datos de la publicación
+                ImgPerfilUsuario.Source = !string.IsNullOrEmpty(publicacion.UrlFotoPerfil)
+                    ? publicacion.UrlFotoPerfil
+                    : "who.jpg";
+
+                LblNombreUsuario.Text = $"@{publicacion.NombreUsuario}";
+                LblTiempoPublicacion.Text = publicacion.TiempoPublicacion;
+
+                ImgPublicacion.Source = !string.IsNullOrEmpty(foto.url_foto)
+                    ? foto.url_foto
+                    : "imagennodisponible.png";
+
+                LblNumeroLikes.Text = publicacion.NumeroLikes.ToString();
+                LblNumeroComentarios.Text = publicacion.NumeroComentarios.ToString();
+                LblDescripcion.Text = !string.IsNullOrEmpty(publicacion.Descripcion)
+                    ? publicacion.Descripcion
+                    : "";
+
+                // Verificar si esta foto es favorita para el usuario actual
+                _esFavorito = await _apiService.EsFavorito(_fotoId);
+                ActualizarIconoFavorito();
+
+                // Cargar los comentarios
+                await CargarComentarios();
+            }
+            else
+            {
+                ImgPerfilUsuario.Source = "who.jpg";
+                ImgPublicacion.Source = !string.IsNullOrEmpty(foto.url_foto)
+                    ? foto.url_foto
+                    : "imagennodisponible.png";
+                LblNombreUsuario.Text = "Usuario";
+                LblDescripcion.Text = "Descripción no disponible";
+
+                await DisplayAlert("Advertencia", "No se pudieron cargar todos los detalles de la publicación", "OK");
+            }
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Error al cargar publicación: {ex.Message}");
             await DisplayAlert("Error", $"No se pudo cargar la publicación: {ex.Message}", "OK");
+
+            // Establecer valores por defecto
+            ImgPerfilUsuario.Source = "who.jpg";
+            ImgPublicacion.Source = "imagennodisponible.png";
+        }
+        finally
+        {
+            // Ocultar indicador de carga
+            if (LoadingIndicator != null)
+            {
+                LoadingIndicator.IsRunning = false;
+                LoadingIndicator.IsVisible = false;
+            }
         }
     }
-}
 
-public class ComentarioViewModel
-{
-    public string NombreUsuario { get; set; } = "";
-    public string UrlFotoPerfil { get; set; } = "";
-    public string Comentario { get; set; } = "";
-    public string TiempoComentario { get; set; } = "";
+    private async Task CargarComentarios()
+    {
+        try
+        {
+            _comentarios.Clear();
+
+            var comentarios = await _apiService.ObtenerComentarios(_fotoId);
+
+            if (comentarios != null && comentarios.Count > 0)
+            {
+                foreach (var comentario in comentarios)
+                {
+                    _comentarios.Add(new ComentarioViewModel
+                    {
+                        NombreUsuario = comentario.NombreUsuario,
+                        UrlFotoPerfil = !string.IsNullOrEmpty(comentario.UrlFotoPerfil)
+                            ? comentario.UrlFotoPerfil
+                            : "who.jpg",
+                        Contenido = comentario.Contenido,
+                        FechaComentario = comentario.FechaComentario
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar comentarios: {ex.Message}");
+            // No mostrar el error al usuario para no interrumpir la experiencia
+        }
+    }
+
+    private void ActualizarIconoFavorito()
+    {
+        // Actualizar el icono según el estado actual
+        // Aquí asumo que tienes un ImageButton llamado BtnMeGusta
+        if (BtnMeGusta != null)
+        {
+            BtnMeGusta.Source = _esFavorito ? "heart_filled.png" : "heart_outline.png";
+        }
+    }
+
+    private async void OnMeGustaClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            // Toggle el estado de favorito
+            bool resultado = await _apiService.ToggleFavorito(_fotoId);
+
+            // Si la operación fue exitosa, actualizamos el UI
+            _esFavorito = !_esFavorito;
+            ActualizarIconoFavorito();
+
+            // Actualizar el contador de likes
+            int likesActuales = int.Parse(LblNumeroLikes.Text);
+            LblNumeroLikes.Text = (_esFavorito ? likesActuales + 1 : likesActuales - 1).ToString();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo procesar la acción: {ex.Message}", "OK");
+        }
+    }
+
+    private async void OnEnviarComentarioClicked(object sender, EventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(EntryComentario.Text))
+            return;
+
+        try
+        {
+            var resultado = await _apiService.AgregarComentario(_fotoId, EntryComentario.Text);
+
+            if (resultado.Item1)
+            {
+                // Añadir el comentario al listado local
+                var sesion = await _apiService.ObtenerSesionActual();
+                _comentarios.Add(new ComentarioViewModel
+                {
+                    NombreUsuario = $"@{sesion.Usuario.nombre_usuario}",
+                    UrlFotoPerfil = !string.IsNullOrEmpty(sesion.Usuario.foto_perfil)
+                        ? sesion.Usuario.foto_perfil
+                        : "who.jpg",
+                    Contenido = EntryComentario.Text,
+                    FechaComentario = "Ahora mismo"
+                });
+
+                // Limpiar el campo de entrada
+                EntryComentario.Text = string.Empty;
+
+                // Actualizar el contador de comentarios
+                int comentariosActuales = int.Parse(LblNumeroComentarios.Text);
+                LblNumeroComentarios.Text = (comentariosActuales + 1).ToString();
+            }
+            else
+            {
+                await DisplayAlert("Error", resultado.Item2, "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo añadir el comentario: {ex.Message}", "OK");
+        }
+    }
 }
