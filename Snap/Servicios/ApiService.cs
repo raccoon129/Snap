@@ -204,6 +204,38 @@ namespace Snap.Servicios
             }
         }
 
+        // Buscar usuario por PIN
+        public async Task<UsuarioViewModel> BuscarUsuarioPorPin(string pin)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"usuario/buscarPorPin/{pin}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var usuario = await response.Content.ReadFromJsonAsync<usuario>();
+                    if (usuario != null)
+                    {
+                        return new UsuarioViewModel
+                        {
+                            Id = usuario.id_usuario,
+                            NombreUsuario = usuario.nombre_usuario,
+                            FotoPerfil = usuario.foto_perfil ?? "default_user.png",
+                            Biografia = usuario.biografia ?? string.Empty,
+                            Pais = usuario.pais ?? string.Empty
+                        };
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al buscar usuario por PIN: {ex.Message}");
+                return null;
+            }
+        }
+
         #endregion
 
         #region Publicaciones
@@ -818,6 +850,20 @@ namespace Snap.Servicios
             try
             {
                 var response = await _httpClient.PutAsync($"amigo/aceptar/{idSolicitud}", null);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Rechazar solicitud de amistad
+        public async Task<bool> RechazarSolicitudAmistad(int idSolicitud)
+        {
+            try
+            {
+                var response = await _httpClient.PutAsync($"amigo/rechazar/{idSolicitud}", null);
                 return response.IsSuccessStatusCode;
             }
             catch

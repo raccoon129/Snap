@@ -307,4 +307,8 @@ public partial class PerfilPage : ContentPage
             }
         }
     }
+    private async void OnQRClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("/GestionAmigos");
+    }
 }

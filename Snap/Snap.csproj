@@ -76,7 +76,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Paginas\GestionAmigosPage.xaml.cs">
+	    <DependentUpon>GestionAmigosPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Paginas\CapturaPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Paginas\GestionAmigosPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Paginas\InicioPage.xaml">

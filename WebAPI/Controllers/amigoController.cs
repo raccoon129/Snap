@@ -95,5 +95,33 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        // Rechazar solicitud de amistad
+        [HttpPut("rechazar/{idSolicitud}")]
+        public ActionResult<amigo> RechazarSolicitud(string idSolicitud)
+        {
+            try
+            {
+                var parametros = new Dictionary<string, string>
+        {
+            { "p_id_amigo", idSolicitud }
+        };
+
+                var resultado = _repositorio.EjecutarProcedimiento<amigo>("sp_rechazar_solicitud", parametros);
+
+                if (resultado != null && resultado.Count > 0)
+                {
+                    return Ok(resultado[0]);
+                }
+                else
+                {
+                    return BadRequest(_repositorio.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
+

@@ -220,6 +220,36 @@ public ActionResult<List<usuario>> BuscarPorNombre(string nombre)
                 return BadRequest(ex.Message);
             }
         }
+
+
+
+        // Buscar usuario por PIN
+        [HttpGet("buscarPorPin/{pin}")]
+        public ActionResult<usuario> BuscarUsuarioPorPin(string pin)
+        {
+            try
+            {
+                var parametros = new Dictionary<string, string>
+        {
+            { "p_pin", pin }
+        };
+
+                var resultado = _repositorio.EjecutarProcedimiento<usuario>("sp_buscar_usuario_por_pin", parametros);
+
+                if (resultado != null && resultado.Count > 0)
+                {
+                    return Ok(resultado[0]);
+                }
+                else
+                {
+                    return NotFound("No se encontró ningún usuario con ese PIN");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 
     public class LoginModel

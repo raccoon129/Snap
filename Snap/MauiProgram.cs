@@ -28,6 +28,7 @@ namespace Snap
             builder.Services.AddTransient<PublicacionPage>();
 
             builder.Services.AddTransient<RegistroPage>();
+            builder.Services.AddTransient<GestionAmigos>();
 
 
 #if DEBUG

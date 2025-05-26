@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Snap.Paginas"
+             x:Class="Snap.Paginas.GestionAmigos"
+             Title="Gestión de Amigos">
+    <Grid RowDefinitions="Auto,*">
+        <!-- Pestañas superiores -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,*">
+            <Button Grid.Column="0"
+                    x:Name="BtnMiPin"
+                    Text="Mi PIN y Añadir Amigo"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    Clicked="OnMiPinClicked" />
+            <Button Grid.Column="1"
+                    x:Name="BtnSolicitudes"
+                    Text="Solicitudes y Amigos"
+                    BackgroundColor="Transparent"
+                    TextColor="Gray"
+                    Clicked="OnSolicitudesClicked" />
+            <!-- Indicadores de pestaña activa -->
+            <BoxView x:Name="IndicadorMiPin"
+                     Grid.Column="0"
+                     HeightRequest="2"
+                     BackgroundColor="{StaticResource Primary}"
+                     VerticalOptions="End" />
+            <BoxView x:Name="IndicadorSolicitudes"
+                     Grid.Column="1"
+                     HeightRequest="2"
+                     BackgroundColor="Transparent"
+                     VerticalOptions="End" />
+        </Grid>
+        <!-- Contenido de las pestañas -->
+        <Grid Grid.Row="1">
+            <!-- Vista de Mi PIN y Añadir Amigo -->
+            <StackLayout x:Name="VistaMiPin"
+                         IsVisible="true"
+                         Padding="20">
+                <Frame BackgroundColor="{StaticResource Primary}"
+                       Padding="20"
+                       Margin="0,20,0,30"
+                       CornerRadius="10">
+                    <StackLayout>
+                        <Label Text="Mi PIN de Contacto"
+                               TextColor="White"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center" />
+                        <Label x:Name="LblPinUsuario"
+                               Text="12345"
+                               TextColor="White"
+                               FontSize="40"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               Margin="0,10,0,10" />
+                        <Label Text="Comparte este PIN con tus amigos para que puedan añadirte"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center" />
+                    </StackLayout>
+                </Frame>
+                <Label Text="Añadir Amigo por PIN"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       Margin="0,20,0,10" />
+                <Frame Padding="10"
+                       BorderColor="LightGray"
+                       CornerRadius="5">
+                    <Entry x:Name="EntryPinAmigo"
+                           Placeholder="Introduce el PIN de tu amigo"
+                           Keyboard="Numeric"
+                           MaxLength="5" />
+                </Frame>
+                <Button x:Name="BtnEnviarSolicitud"
+                        Text="Enviar Solicitud"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        CornerRadius="5"
+                        Margin="0,15,0,0"
+                        Clicked="OnEnviarSolicitudClicked" />
+                <Label x:Name="LblResultadoSolicitud"
+                       Text=""
+                       IsVisible="false"
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,0" />
+                <ActivityIndicator x:Name="CargandoIndicador"
+                                   IsRunning="false"
+                                   IsVisible="false"
+                                   HorizontalOptions="Center"
+                                   Margin="0,10,0,0" />
+            </StackLayout>
+            <!-- Vista de Solicitudes y Amigos -->
+            <ScrollView x:Name="VistaSolicitudes"
+                        IsVisible="false">
+                <StackLayout Padding="20">
+                    <Label Text="Solicitudes Pendientes"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           Margin="0,10,0,10" />
+                    <CollectionView x:Name="ListaSolicitudes"
+                                    EmptyView="No tienes solicitudes pendientes"
+                                    Margin="0,0,0,20">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="0,10"
+                                      ColumnDefinitions="Auto,*,Auto,Auto">
+                                    <Frame HeightRequest="50"
+                                           WidthRequest="50"
+                                           CornerRadius="25"
+                                           Padding="0"
+                                           IsClippedToBounds="True">
+                                        <Image Source="{Binding FotoPerfil}"
+                                               Aspect="AspectFill" />
+                                    </Frame>
+                                    <StackLayout Grid.Column="1"
+                                                 VerticalOptions="Center"
+                                                 Margin="10,0">
+                                        <Label Text="{Binding NombreUsuario}"
+                                               FontAttributes="Bold" />
+                                        <Label Text="{Binding FechaSolicitud}"
+                                               TextColor="Gray"
+                                               FontSize="Small" />
+                                    </StackLayout>
+                                    <Button Grid.Column="2"
+                                            Text="Aceptar"
+                                            BackgroundColor="{StaticResource Primary}"
+                                            TextColor="White"
+                                            CornerRadius="5"
+                                            Padding="10,5"
+                                            Margin="5,0"
+                                            Clicked="OnAceptarSolicitudClicked"
+                                            CommandParameter="{Binding Id}" />
+                                    <Button Grid.Column="3"
+                                            Text="Rechazar"
+                                            BackgroundColor="LightGray"
+                                            TextColor="Black"
+                                            CornerRadius="5"
+                                            Padding="10,5"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:GestionAmigos}}, Path=RechazarSolicitudCommand}"
+                                            CommandParameter="{Binding Id}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Label Text="Mis Amigos"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           Margin="0,20,0,10" />
+                    <CollectionView x:Name="ListaAmigos"
+                                    EmptyView="No tienes amigos todavía">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="0,10"
+                                      ColumnDefinitions="Auto,*">
+                                    <Frame HeightRequest="50"
+                                           WidthRequest="50"
+                                           CornerRadius="25"
+                                           Padding="0"
+                                           IsClippedToBounds="True">
+                                        <Image Source="{Binding FotoPerfil}"
+                                               Aspect="AspectFill" />
+                                    </Frame>
+                                    <StackLayout Grid.Column="1"
+                                                 VerticalOptions="Center"
+                                                 Margin="10,0">
+                                        <Label Text="{Binding NombreUsuario}"
+                                               FontAttributes="Bold" />
+                                        <Label Text="{Binding Biografia}"
+                                               TextColor="Gray"
+                                               FontSize="Small"
+                                               LineBreakMode="TailTruncation"
+                                               MaxLines="1" />
+                                    </StackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>
