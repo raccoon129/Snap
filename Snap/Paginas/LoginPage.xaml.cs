@@ -15,6 +15,11 @@ public partial class LoginPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        // Limpiar campos si vienen de cierre de sesión
+        EntryUsuario.Text = string.Empty;
+        EntryPin.Text = string.Empty;
+
+
 
         var sesion = await _apiService.ObtenerSesionActual();
         if (sesion.SesionActiva)
@@ -68,6 +73,6 @@ public partial class LoginPage : ContentPage
         // Navegar a la página de registro (cuando se implemente)
         //await DisplayAlert("Registro", "Funcionalidad de registro pendiente", "OK");
 
-        await Shell.Current.GoToAsync("///Registro");
+        await Shell.Current.GoToAsync("/Registro");
     }
 }

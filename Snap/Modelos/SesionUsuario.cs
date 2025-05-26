@@ -10,6 +10,7 @@ namespace Snap.Modelos
         public string Token { get; set; }
         public DateTime FechaExpiracion { get; set; }
 
-        public bool SesionActiva => EstaAutenticado && DateTime.Now < FechaExpiracion;
+        // En SesionUsuario.cs
+        public bool SesionActiva => EstaAutenticado && Usuario != null;
     }
 }

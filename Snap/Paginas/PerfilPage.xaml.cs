@@ -283,11 +283,36 @@ public partial class PerfilPage : ContentPage
 
     private async void OnCerrarSesionClicked(object sender, EventArgs e)
     {
-        bool confirmar = await DisplayAlert("Cerrar sesión", "¿Estás seguro que deseas cerrar tu sesión?", "Sí", "No");
-        if (confirmar)
+        try
         {
-            await _apiService.CerrarSesion();
-            await Shell.Current.GoToAsync("//Login");
+            bool confirmar = await DisplayAlert("Cerrar sesión", "¿Estás seguro que deseas cerrar tu sesión?", "Sí", "No");
+            if (confirmar)
+            {
+                // Mostrar indicador de carga
+                LoadingIndicator.IsRunning = true;
+                LoadingIndicator.IsVisible = true;
+                
+                // Limpiar datos locales
+                _publicaciones.Clear();
+                _favoritos.Clear();
+                
+                // Cerrar sesión en el servicio
+                await _apiService.CerrarSesion();
+                
+                // Usar la forma correcta de navegar a Login (con doble slash para ruta absoluta)
+                await Shell.Current.GoToAsync("//Login");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Error al cerrar sesión: {ex.Message}", "OK");
+            Console.WriteLine($"Error al cerrar sesión: {ex.Message}");
+        }
+        finally
+        {
+            // Asegurarse de ocultar el indicador de carga
+            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsVisible = false;
         }
     }
 

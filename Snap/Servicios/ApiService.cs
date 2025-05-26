@@ -70,8 +70,12 @@ namespace Snap.Servicios
 
         public async Task<SesionUsuario> ObtenerSesionActual()
         {
-            if (_sesion.EstaAutenticado)
+            // Si ya hay una sesión en memoria, verificar que sea válida
+            if (_sesion.EstaAutenticado && _sesion.Usuario != null &&
+                _sesion.FechaExpiracion > DateTime.Now)
+            {
                 return _sesion;
+            }
 
             try
             {
@@ -79,7 +83,12 @@ namespace Snap.Servicios
                 if (!string.IsNullOrEmpty(sesionJson))
                 {
                     var sesionGuardada = JsonSerializer.Deserialize<SesionUsuario>(sesionJson);
-                    if (sesionGuardada != null && sesionGuardada.SesionActiva)
+
+                    // Verificar completamente la sesión guardada
+                    if (sesionGuardada != null &&
+                        sesionGuardada.EstaAutenticado &&
+                        sesionGuardada.Usuario != null &&
+                        sesionGuardada.FechaExpiracion > DateTime.Now)
                     {
                         _sesion.Usuario = sesionGuardada.Usuario;
                         _sesion.EstaAutenticado = true;
@@ -93,16 +102,34 @@ namespace Snap.Servicios
                 Console.WriteLine($"Error al recuperar sesión: {ex.Message}");
             }
 
-            return new SesionUsuario { EstaAutenticado = false };
-        }
-
-        public async Task CerrarSesion()
-        {
+            // Si llegamos aquí, no hay sesión válida
             _sesion.EstaAutenticado = false;
             _sesion.Usuario = null;
-
-            await SecureStorage.SetAsync("sesion_usuario", "");
+            return _sesion;
         }
+        public async Task CerrarSesion()
+        {
+            try
+            {
+                // Limpiar datos de sesión completamente
+                _sesion.EstaAutenticado = false;
+                _sesion.Usuario = null;
+                _sesion.FechaExpiracion = DateTime.MinValue;
+
+                // Importante: La clase debe ser serializable para guardar estos cambios
+                await GuardarSesion(); // Guardar los cambios para que persistan
+
+                // Limpieza adicional del almacenamiento
+                await SecureStorage.SetAsync("sesion_usuario", "");
+
+                Console.WriteLine("Sesión cerrada correctamente");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al cerrar sesión: {ex.Message}");
+            }
+        }
+
 
         private async Task GuardarSesion()
         {
