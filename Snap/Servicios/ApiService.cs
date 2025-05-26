@@ -345,15 +345,53 @@ namespace Snap.Servicios
         {
             try
             {
+                // Obtener la respuesta del servidor
                 var response = await _httpClient.GetAsync($"usuario/{idUsuario}/publicaciones");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var publicaciones = await response.Content.ReadFromJsonAsync<List<PublicacionConDetalles>>();
+                    // Para diagnóstico, imprimir la respuesta
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Respuesta del servidor: {jsonResponse}");
+
+                    // Opciones de deserialización que ignoran mayúsculas/minúsculas
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    // Intentar deserializar con el modelo correcto
+                    var publicaciones = JsonSerializer.Deserialize<List<PublicacionConDetalles>>(jsonResponse, options);
+                    
                     if (publicaciones != null)
                     {
-                        return publicaciones.Select(p => ConvertirAViewModel(p)).ToList();
+                        var resultado = new List<PublicacionViewModel>();
+                        foreach (var p in publicaciones)
+                        {
+                            // Manejar valores nulos apropiadamente
+                            var viewModel = new PublicacionViewModel
+                            {
+                                Id = p.id_publicacion,
+                                IdUsuario = p.id_usuario,
+                                NombreUsuario = p.nombre_usuario ?? "Usuario",
+                                UrlFotoPerfil = p.foto_perfil ?? "who.jpg",
+                                UrlFoto = p.url_foto ?? "imagennodisponible.png",
+                                Descripcion = p.descripcion ?? string.Empty,
+                                Ubicacion = p.ubicacion ?? string.Empty,
+                                TiempoPublicacion = ObtenerTiempoRelativo(p.fecha_publicacion),
+                                NumeroLikes = p.numero_likes,
+                                NumeroComentarios = p.numero_comentarios
+                            };
+                            resultado.Add(viewModel);
+                        }
+                        return resultado;
                     }
+                }
+                else
+                {
+                    // Registrar el error para diagnóstico
+                    Console.WriteLine($"Error HTTP: {response.StatusCode}");
+                    Console.WriteLine(await response.Content.ReadAsStringAsync());
                 }
 
                 return new List<PublicacionViewModel>();
@@ -361,6 +399,7 @@ namespace Snap.Servicios
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al obtener publicaciones de usuario: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 return new List<PublicacionViewModel>();
             }
         }
@@ -621,6 +660,7 @@ namespace Snap.Servicios
                     return new List<foto>();
                 }
 
+                // Obtener favoritos del usuario
                 var response = await _httpClient.GetAsync($"favorito/usuario/{sesion.Usuario.id_usuario}");
 
                 if (response.IsSuccessStatusCode)
@@ -628,22 +668,29 @@ namespace Snap.Servicios
                     var favoritos = await response.Content.ReadFromJsonAsync<List<favorito>>();
                     if (favoritos != null && favoritos.Count > 0)
                     {
-                        // Obtener detalles de cada foto
-                        var fotos = new List<foto>();
-                        foreach (var fav in favoritos)
-                        {
-                            var fotoResponse = await _httpClient.GetAsync($"foto/{fav.id_foto}");
-                            if (fotoResponse.IsSuccessStatusCode)
-                            {
-                                var foto = await fotoResponse.Content.ReadFromJsonAsync<foto>();
-                                if (foto != null)
+                        // Obtener detalles de cada foto en paralelo para mejorar rendimiento
+                        var tareasFotos = favoritos.Select(async fav => {
+                            try {
+                                var fotoResponse = await _httpClient.GetAsync($"foto/{fav.id_foto}");
+                                if (fotoResponse.IsSuccessStatusCode)
                                 {
-                                    fotos.Add(foto);
+                                    return await fotoResponse.Content.ReadFromJsonAsync<foto>();
                                 }
+                                return null;
                             }
-                        }
-                        return fotos;
+                            catch {
+                                return null; 
+                            }
+                        });
+                        
+                        var resultados = await Task.WhenAll(tareasFotos);
+                        return resultados.Where(f => f != null).ToList();
                     }
+                }
+                else
+                {
+                    Console.WriteLine($"Error al obtener favoritos: {response.StatusCode}");
+                    Console.WriteLine(await response.Content.ReadAsStringAsync());
                 }
 
                 return new List<foto>();

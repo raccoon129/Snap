@@ -1,5 +1,6 @@
 using Snap.Servicios;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace Snap.Paginas;
 
@@ -10,10 +11,23 @@ public partial class PerfilPage : ContentPage
     private ObservableCollection<PublicacionViewModel> _favoritos = new ObservableCollection<PublicacionViewModel>();
     private int usuarioId;
 
+    // Propiedades para el RefreshView
+    public bool IsRefreshingRecuerdos { get; set; }
+    public bool IsRefreshingFavoritos { get; set; }
+    public ICommand RefreshRecuerdosCommand { get; private set; }
+    public ICommand RefreshFavoritosCommand { get; private set; }
+
     public PerfilPage(ApiService apiService)
     {
         InitializeComponent();
         _apiService = apiService;
+
+        // Inicializar los comandos
+        RefreshRecuerdosCommand = new Command(async () => await RefrescarRecuerdos());
+        RefreshFavoritosCommand = new Command(async () => await RefrescarFavoritos());
+
+        // Establecer el contexto de los bindings
+        BindingContext = this;
 
         GridRecuerdos.ItemsSource = _publicaciones;
         GridFavoritos.ItemsSource = _favoritos;
@@ -26,7 +40,17 @@ public partial class PerfilPage : ContentPage
         LoadingIndicator.IsVisible = true;
 
         await CargarDatosUsuario();
-        await CargarPublicaciones();
+        
+        // Si ya teníamos datos cargados, solo refrescar favoritos
+        // para evitar recargar todo cada vez
+        if (_publicaciones.Count > 0)
+        {
+            await RefrescarFavoritos();
+        }
+        else
+        {
+            await CargarPublicaciones();
+        }
 
         LoadingIndicator.IsRunning = false;
         LoadingIndicator.IsVisible = false;
@@ -72,6 +96,10 @@ public partial class PerfilPage : ContentPage
     {
         try
         {
+            // Mostrar indicador de carga
+            LoadingIndicator.IsRunning = true;
+            LoadingIndicator.IsVisible = true;
+
             // Cargar publicaciones del usuario
             _publicaciones.Clear();
             var publicacionesUsuario = await _apiService.ObtenerPublicacionesDeUsuario(usuarioId);
@@ -80,24 +108,35 @@ public partial class PerfilPage : ContentPage
             {
                 foreach (var pub in publicacionesUsuario)
                 {
-                    if (!string.IsNullOrEmpty(pub.UrlFoto))
-                    {
-                        _publicaciones.Add(pub);
-                    }
+                    // Incluir todas las publicaciones, incluso sin foto
+                    _publicaciones.Add(pub);
                 }
             }
 
             // Mostrar mensaje si no hay publicaciones
-            if (_publicaciones.Count == 0)
-            {
-                EmptyRecuerdosLabel.IsVisible = true;
-            }
-            else
-            {
-                EmptyRecuerdosLabel.IsVisible = false;
-            }
+            EmptyRecuerdosLabel.IsVisible = _publicaciones.Count == 0;
 
-            // Cargar favoritos
+            // Cargar favoritos con el método mejorado
+            await CargarFavoritos();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar publicaciones: {ex.Message}");
+            await DisplayAlert("Error", "No se pudieron cargar tus recuerdos. Por favor, intenta de nuevo.", "OK");
+            EmptyRecuerdosLabel.IsVisible = true;
+        }
+        finally
+        {
+            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsVisible = false;
+        }
+    }
+
+    // Método separado para cargar favoritos
+    private async Task CargarFavoritos()
+    {
+        try
+        {
             _favoritos.Clear();
             var fotos = await _apiService.ObtenerFavoritos();
 
@@ -106,12 +145,12 @@ public partial class PerfilPage : ContentPage
             {
                 foreach (var foto in fotos)
                 {
-                    if (foto != null && !string.IsNullOrEmpty(foto.url_foto))
+                    if (foto != null)
                     {
                         _favoritos.Add(new PublicacionViewModel
                         {
                             Id = foto.id_foto,
-                            UrlFoto = foto.url_foto,
+                            UrlFoto = foto.url_foto ?? "imagennodisponible.png",
                             IdUsuario = foto.id_usuario
                         });
                     }
@@ -119,20 +158,66 @@ public partial class PerfilPage : ContentPage
             }
 
             // Mostrar mensaje si no hay favoritos
-            if (_favoritos.Count == 0)
-            {
-                EmptyFavoritosLabel.IsVisible = true;
-            }
-            else
-            {
-                EmptyFavoritosLabel.IsVisible = false;
-            }
+            EmptyFavoritosLabel.IsVisible = _favoritos.Count == 0;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al cargar publicaciones: {ex.Message}");
-            EmptyRecuerdosLabel.IsVisible = true;
+            Console.WriteLine($"Error al cargar favoritos: {ex.Message}");
             EmptyFavoritosLabel.IsVisible = true;
+        }
+    }
+
+    // Agregar este método para refrescar manualmente los favoritos
+    public async Task RefrescarFavoritos()
+    {
+        try
+        {
+            IsRefreshingFavoritos = true;
+            OnPropertyChanged(nameof(IsRefreshingFavoritos));
+            
+            await CargarFavoritos();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al refrescar favoritos: {ex.Message}");
+            await DisplayAlert("Error", "No se pudieron cargar tus favoritos.", "OK");
+        }
+        finally
+        {
+            IsRefreshingFavoritos = false;
+            OnPropertyChanged(nameof(IsRefreshingFavoritos));
+        }
+    }
+
+    private async Task RefrescarRecuerdos()
+    {
+        try
+        {
+            IsRefreshingRecuerdos = true;
+            OnPropertyChanged(nameof(IsRefreshingRecuerdos));
+            
+            _publicaciones.Clear();
+            var publicacionesUsuario = await _apiService.ObtenerPublicacionesDeUsuario(usuarioId);
+
+            if (publicacionesUsuario != null && publicacionesUsuario.Count > 0)
+            {
+                foreach (var pub in publicacionesUsuario)
+                {
+                    _publicaciones.Add(pub);
+                }
+            }
+            
+            EmptyRecuerdosLabel.IsVisible = _publicaciones.Count == 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al refrescar recuerdos: {ex.Message}");
+            await DisplayAlert("Error", "No se pudieron cargar tus recuerdos.", "OK");
+        }
+        finally
+        {
+            IsRefreshingRecuerdos = false;
+            OnPropertyChanged(nameof(IsRefreshingRecuerdos));
         }
     }
 
@@ -147,9 +232,9 @@ public partial class PerfilPage : ContentPage
         IndicadorFavoritos.BackgroundColor = Colors.Transparent;
         IndicadorAjustes.BackgroundColor = Colors.Transparent;
 
-        GridRecuerdos.IsVisible = false;
+        RecuerdosRefreshView.IsVisible = false;
+        FavoritosRefreshView.IsVisible = false;
         EmptyRecuerdosLabel.IsVisible = false;
-        GridFavoritos.IsVisible = false;
         EmptyFavoritosLabel.IsVisible = false;
         ViewAjustes.IsVisible = false;
 
@@ -158,14 +243,14 @@ public partial class PerfilPage : ContentPage
         {
             BtnRecuerdos.TextColor = (Color)Application.Current.Resources["Primary"];
             IndicadorRecuerdos.BackgroundColor = (Color)Application.Current.Resources["Primary"];
-            GridRecuerdos.IsVisible = true;
+            RecuerdosRefreshView.IsVisible = true;
             EmptyRecuerdosLabel.IsVisible = _publicaciones.Count == 0;
         }
         else if (pestana == 1)
         {
             BtnFavoritos.TextColor = (Color)Application.Current.Resources["Primary"];
             IndicadorFavoritos.BackgroundColor = (Color)Application.Current.Resources["Primary"];
-            GridFavoritos.IsVisible = true;
+            FavoritosRefreshView.IsVisible = true;
             EmptyFavoritosLabel.IsVisible = _favoritos.Count == 0;
         }
         else if (pestana == 2)

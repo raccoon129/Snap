@@ -103,11 +103,11 @@
                                                 <Span Text="{Binding NombreUsuario}"
                                                       FontAttributes="Bold" />
                                                 <Span Text=" " />
-                                                <Span Text="{Binding Contenido}" />
+                                                <Span Text="{Binding FechaComentario}" />
                                             </FormattedString>
                                         </Label.FormattedText>
                                     </Label>
-                                    <Label Text="{Binding FechaComentario}"
+                                    <Label Text="{Binding Contenido}"
                                            TextColor="Gray"
                                            FontSize="Small" />
                                 </StackLayout>

@@ -1,6 +1,7 @@
 ﻿using COMMON.Entidades;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WebAPI.Controllers
 {
@@ -82,33 +83,48 @@ public ActionResult<List<usuario>> BuscarPorNombre(string nombre)
     }
 }
 
-// Obtener publicaciones de un usuario
-[HttpGet("{id}/publicaciones")]
-public ActionResult<List<publicacion>> ObtenerPublicacionesUsuario(string id)
-{
-    try
-    {
-        var parametros = new Dictionary<string, string>
+        [HttpGet("{id}/publicaciones")]
+        public ActionResult<List<PublicacionDetalle>> ObtenerPublicacionesUsuario(string id)
+        {
+            try
+            {
+                var parametros = new Dictionary<string, string>
         {
             { "p_id_usuario", id }
         };
 
-        var resultado = _repositorio.EjecutarProcedimiento<publicacion>("sp_publicaciones_usuario", parametros);
+                var resultado = _repositorio.EjecutarProcedimiento<PublicacionDetalle>("sp_publicaciones_usuario_completo", parametros);
 
-        if (resultado != null)
-        {
-            return Ok(resultado);
+                if (resultado != null)
+                {
+                    // Procesar para manejar posibles valores nulos
+                    foreach (var item in resultado)
+                    {
+                        // Asignar valores predeterminados a campos que podrían ser nulos
+                        if (item.nombre_usuario == null) item.nombre_usuario = "Usuario";
+                        if (item.foto_perfil == null) item.foto_perfil = "who.jpg";
+                        if (item.url_foto == null) item.url_foto = "imagennodisponible.png";
+
+                        // Registrar para diagnóstico
+                        Console.WriteLine($"Publicación {item.id_publicacion}: " +
+                                         $"nombre_usuario={item.nombre_usuario}, " +
+                                         $"url_foto={item.url_foto}, " +
+                                         $"likes={item.numero_likes}");
+                    }
+
+                    return Ok(resultado);
+                }
+                else
+                {
+                    return BadRequest(_repositorio.Error ?? "No se pudieron obtener las publicaciones");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error detallado: {ex}");
+                return BadRequest(ex.Message);
+            }
         }
-        else
-        {
-            return BadRequest(_repositorio.Error);
-        }
-    }
-    catch (Exception ex)
-    {
-        return BadRequest(ex.Message);
-    }
-}
         // Verificar si un contacto (email o teléfono) ya existe
         [HttpGet("verificarContacto/{contacto}")]
         public ActionResult<bool> VerificarContactoExiste(string contacto)
@@ -228,5 +244,28 @@ public ActionResult<List<publicacion>> ObtenerPublicacionesUsuario(string id)
         public string? Biografia { get; set; }
         public string? Pais { get; set; }
         public string? FotoPerfil { get; set; }
+    }
+
+    // clase para asegurar el correcto mapeo de nombres de columnas
+    public class PublicacionDetalle : publicacion
+    {
+        // Usar atributos para asegurar el correcto mapeo
+        [JsonPropertyName("nombre_usuario")]
+        public string nombre_usuario { get; set; }
+
+        [JsonPropertyName("foto_perfil")]
+        public string foto_perfil { get; set; }
+
+        [JsonPropertyName("id_foto")]
+        public long id_foto { get; set; }
+
+        [JsonPropertyName("url_foto")]
+        public string url_foto { get; set; }
+
+        [JsonPropertyName("numero_likes")]
+        public long numero_likes { get; set; }
+
+        [JsonPropertyName("numero_comentarios")]
+        public long numero_comentarios { get; set; }
     }
 }

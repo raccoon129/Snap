@@ -93,24 +93,31 @@
         <Grid Grid.Row="3"
               x:Name="ContenidoPestanas">
             <!-- Vista de recuerdos -->
-            <CollectionView x:Name="GridRecuerdos"
-                            IsVisible="true"
-                            SelectionMode="Single"
-                            SelectionChanged="OnPublicacionSeleccionada">
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical"
-                                     Span="3"
-                                     HorizontalItemSpacing="2"
-                                     VerticalItemSpacing="2" />
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Image Source="{Binding UrlFoto}"
-                               Aspect="AspectFill"
-                               HeightRequest="120" />
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <RefreshView Grid.Row="3" 
+                         IsRefreshing="{Binding IsRefreshingRecuerdos}"
+                         Command="{Binding RefreshRecuerdosCommand}"
+                         x:Name="RecuerdosRefreshView"
+                         IsVisible="true">
+                <CollectionView x:Name="GridRecuerdos"
+                                SelectionMode="Single"
+                                SelectionChanged="OnPublicacionSeleccionada">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical"
+                                         Span="3"
+                                         HorizontalItemSpacing="2"
+                                         VerticalItemSpacing="2" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Image Source="{Binding UrlFoto, TargetNullValue='imagennodisponible.png'}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="120" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
             <!-- Mensaje cuando no hay recuerdos -->
             <Label x:Name="EmptyRecuerdosLabel"
                    Text="No tienes publicaciones aún. Crea tu primera publicación."
@@ -120,24 +127,32 @@
                    TextColor="Gray"
                    IsVisible="False" />
             <!-- Vista de favoritos -->
-            <CollectionView x:Name="GridFavoritos"
-                            IsVisible="false"
-                            SelectionMode="Single"
-                            SelectionChanged="OnPublicacionSeleccionada">
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical"
-                                     Span="3"
-                                     HorizontalItemSpacing="2"
-                                     VerticalItemSpacing="2" />
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Image Source="{Binding UrlFoto}"
-                               Aspect="AspectFill"
-                               HeightRequest="120" />
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <RefreshView Grid.Row="3"
+                         IsRefreshing="{Binding IsRefreshingFavoritos}"
+                         Command="{Binding RefreshFavoritosCommand}"
+                         x:Name="FavoritosRefreshView"
+                         IsVisible="false">
+                <CollectionView x:Name="GridFavoritos"
+                                SelectionMode="Single"
+                                SelectionChanged="OnPublicacionSeleccionada">
+                    <!-- Mantener el mismo ItemsLayout y ItemTemplate -->
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical"
+                                         Span="3"
+                                         HorizontalItemSpacing="2"
+                                         VerticalItemSpacing="2" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Image Source="{Binding UrlFoto, TargetNullValue='imagennodisponible.png'}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="120" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
             <!-- Mensaje cuando no hay favoritos -->
             <Label x:Name="EmptyFavoritosLabel"
                    Text="No tienes publicaciones favoritas aún. Da like a publicaciones para guardarlas aquí."
