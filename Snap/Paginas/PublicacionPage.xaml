@@ -52,22 +52,40 @@
                            Aspect="AspectFill" />
                 </Frame>
                 <!-- Interacciones -->
-                <HorizontalStackLayout Spacing="15"
-                                       Margin="15,5">
-                    <ImageButton x:Name="BtnMeGusta"
+                <Grid ColumnDefinitions="Auto,Auto,24,Auto,Auto"
+                      Margin="15,5,15,5">
+                    <!-- Botón de favorito y contador -->
+                    <ImageButton Grid.Column="0"
+                                 x:Name="BtnMeGusta"
                                  Source="starregular.png"
                                  HeightRequest="24"
+                                 WidthRequest="24"
                                  BackgroundColor="Transparent"
-                                 Clicked="OnMeGustaClicked" />
-                    <Label x:Name="LblNumeroLikes"
-                           VerticalOptions="Center" />
-                    <ImageButton Source="commentregular.png"
+                                 Clicked="OnMeGustaClicked"
+                                 Padding="0"
+                                 Margin="0" />
+                    <Label Grid.Column="1"
+                           x:Name="LblNumeroLikes"
+                           VerticalOptions="Center"
+                           TextColor="Black"
+                           FontSize="14"
+                           Margin="5,0,0,0" />
+                    
+                    <!-- Botón de comentario y contador -->
+                    <ImageButton Grid.Column="3"
+                                 Source="commentregular.png"
                                  HeightRequest="24"
+                                 WidthRequest="24"
                                  BackgroundColor="Transparent"
-                                 Margin="10,0,0,0" />
-                    <Label x:Name="LblNumeroComentarios"
-                           VerticalOptions="Center" />
-                </HorizontalStackLayout>
+                                 Padding="0"
+                                 Margin="0" />
+                    <Label Grid.Column="4"
+                           x:Name="LblNumeroComentarios"
+                           VerticalOptions="Center"
+                           TextColor="Black"
+                           FontSize="14"
+                           Margin="5,0,0,0" />
+                </Grid>
                 <!-- Descripción -->
                 <StackLayout Margin="15,0">
                     <Label x:Name="LblDescripcion"

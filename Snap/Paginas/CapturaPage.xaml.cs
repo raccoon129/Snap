@@ -13,6 +13,9 @@ public partial class CapturaPage : ContentPage
     {
         InitializeComponent();
         _apiService = new ApiService();
+
+        // Esta cosa para desactivar el boton inicialmente
+        ActualizarEstadoBotonPublicar();
     }
 
     private async void OnCapturarClicked(object sender, EventArgs e)
@@ -100,10 +103,10 @@ public partial class CapturaPage : ContentPage
         string descripcion = EditorDescripcion.Text?.Trim() ?? string.Empty;
         string ubicacion = EntryUbicacion.Text?.Trim() ?? string.Empty;
 
-        // Validar si hay contenido para publicar
-        if (string.IsNullOrEmpty(descripcion) && !hayFoto)
+        // Nueva validación: Verificar si hay una foto (requisito obligatorio)
+        if (!hayFoto || fotoSeleccionada == null)
         {
-            await DisplayAlert("Aviso", "Debes escribir algo o agregar una foto para publicar", "OK");
+            await DisplayAlert("Aviso", "Debes agregar una foto para publicar. En Snap, cada recuerdo debe tener una imagen.", "OK");
             return;
         }
 
@@ -114,32 +117,24 @@ public partial class CapturaPage : ContentPage
 
         try
         {
-            Tuple<bool, string, int> resultado;
-
-            // Publicar con o sin foto según corresponda
-            if (hayFoto && fotoSeleccionada != null)
-            {
-                // Publicación con foto
-                using var stream = await fotoSeleccionada.OpenReadAsync();
-                resultado = await _apiService.CrearPublicacion(
-                    descripcion,
-                    ubicacion,
-                    stream,
-                    fotoSeleccionada.FileName
-                );
-            }
-            else
-            {
-                // Publicación sin foto
-                resultado = await _apiService.CrearPublicacionSinFoto(descripcion, ubicacion);
-            }
+            // Siempre publicar con foto, ya que ahora es obligatorio
+            using var stream = await fotoSeleccionada.OpenReadAsync();
+            var resultado = await _apiService.CrearPublicacion(
+                descripcion,
+                ubicacion,
+                stream,
+                fotoSeleccionada.FileName
+            );
 
             if (resultado.Item1)
             {
                 await DisplayAlert("Éxito", "Publicación creada correctamente", "OK");
-                // Limpiar y volver a la página anterior
+                
+                // Limpiar formulario
                 LimpiarFormulario();
-                await Shell.Current.GoToAsync("..");
+                
+                // Navegar directamente a la página de Inicio en lugar de volver atrás
+                await Shell.Current.GoToAsync("///Inicio");
             }
             else
             {
@@ -166,6 +161,7 @@ public partial class CapturaPage : ContentPage
         {
             ImgFotoPreview.Source = fotoSeleccionada.FullPath;
             FrameFotoPreview.IsVisible = true;
+            ActualizarEstadoBotonPublicar();
         }
     }
 
@@ -177,5 +173,11 @@ public partial class CapturaPage : ContentPage
         fotoSeleccionada = null;
         hayFoto = false;
         FrameFotoPreview.IsVisible = false;
+    }
+
+    private void ActualizarEstadoBotonPublicar()
+    {
+        // El botón solo estará habilitado si hay una foto
+        BtnPublicar.IsEnabled = hayFoto && fotoSeleccionada != null;
     }
 }

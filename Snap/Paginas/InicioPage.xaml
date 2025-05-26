@@ -64,22 +64,40 @@
                                 </Grid>
                             </Frame>
                             <!-- Interacciones -->
-                            <HorizontalStackLayout Grid.Row="2"
-                                                   Spacing="15"
-                                                   Margin="15,10">
-                                <ImageButton Source="{Binding IconoFavorito}"
+                            <Grid Grid.Row="2" 
+                                  ColumnDefinitions="Auto,Auto,24,Auto,Auto"
+                                  Margin="10,8,10,8">
+                                <!-- Botón de favorito y contador -->
+                                <ImageButton Grid.Column="0"
+                                             Source="{Binding IconoFavorito}"
                                              HeightRequest="24"
+                                             WidthRequest="24"
                                              BackgroundColor="Transparent"
-                                             Clicked="OnLikeButtonTapped" />
-                                <Label Text="{Binding NumeroLikes}"
-                                       VerticalOptions="Center" />
-                                <ImageButton Source="commentregular.png"
+                                             Clicked="OnLikeButtonTapped"
+                                             Padding="0"
+                                             Margin="0" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding NumeroLikes}"
+                                       VerticalOptions="Center"
+                                       TextColor="Black"
+                                       FontSize="14"
+                                       Margin="5,0,0,0" />
+                                
+                                <!-- Botón de comentario y contador -->
+                                <ImageButton Grid.Column="3"
+                                             Source="commentregular.png"
                                              HeightRequest="24"
+                                             WidthRequest="24"
                                              BackgroundColor="Transparent"
-                                             Margin="10,0,0,0" />
-                                <Label Text="{Binding NumeroComentarios}"
-                                       VerticalOptions="Center" />
-                            </HorizontalStackLayout>
+                                             Padding="0"
+                                             Margin="0" />
+                                <Label Grid.Column="4"
+                                       Text="{Binding NumeroComentarios}"
+                                       VerticalOptions="Center"
+                                       TextColor="Black"
+                                       FontSize="14"
+                                       Margin="5,0,0,0" />
+                            </Grid>
                             <!-- Descripción -->
                             <StackLayout Grid.Row="3"
                                          Margin="15,0,15,15">

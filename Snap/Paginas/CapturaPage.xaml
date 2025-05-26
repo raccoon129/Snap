@@ -29,6 +29,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <!-- Previsualización de foto (si existe) -->
                 <Frame x:Name="FrameFotoPreview"
