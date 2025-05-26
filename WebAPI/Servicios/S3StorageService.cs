@@ -14,7 +14,7 @@ namespace WebAPI.Servicios
     public class S3StorageService
     {
         private readonly IAmazonS3 _clienteS3;
-        private const int _calidadCompresionJpeg = 60; // Valor de 0-100
+        private const int _calidadCompresionJpeg = 10; // Valor de 0-100
         private const int _anchoMaximo = 1920; // Resolución máxima horizontal
 
         public S3StorageService()

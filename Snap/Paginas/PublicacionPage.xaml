@@ -18,7 +18,7 @@
                      VerticalOptions="End" />
             <!-- Información usuario -->
             <Grid Grid.Row="1"
-                  ColumnDefinitions="Auto,*"
+                  ColumnDefinitions="Auto,*,Auto"
                   Padding="15,10">
                 <Frame HeightRequest="40"
                        WidthRequest="40"
@@ -37,6 +37,16 @@
                            TextColor="Gray"
                            FontSize="12" />
                 </StackLayout>
+                <!-- Botón de opciones (solo visible para el propietario) -->
+                <Button Grid.Column="2"
+                        x:Name="BtnOpciones"
+                        Text="⋮"
+                        FontSize="20"
+                        BackgroundColor="Transparent"
+                        Padding="10,0"
+                        Clicked="OnOpcionesClicked"
+                        TextColor="Black"
+                        IsVisible="False" />
             </Grid>
             <!-- Contenido publicación -->
             <StackLayout Grid.Row="2"

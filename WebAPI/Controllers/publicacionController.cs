@@ -149,6 +149,56 @@ namespace WebAPI.Controllers
                 return BadRequest($"Error al crear la publicación: {ex.Message}");
             }
         }
+
+        // 26 de Mayo
+        // Eliminar publicación
+        [HttpDelete("{id}/{idUsuario}")]
+        public async Task<ActionResult<bool>> EliminarPublicacion(int id, int idUsuario)
+        {
+            try
+            {
+                // Verificar que la publicación exista y pertenezca al usuario
+                var parametrosVerificar = new Dictionary<string, string>
+                {
+                    { "p_id_publicacion", id.ToString() },
+                    { "p_id_usuario", idUsuario.ToString() }
+                };
+
+                var publicacion = _repositorio.EjecutarProcedimiento<publicacion>(
+                    "sp_verificar_propietario_publicacion", parametrosVerificar);
+
+                if (publicacion == null || publicacion.Count == 0)
+                {
+                    return BadRequest("La publicación no existe o no pertenece al usuario indicado");
+                }
+
+                // Obtener las fotos asociadas para eliminarlas de S3
+                var parametrosFotos = new Dictionary<string, string>
+                {
+                    { "p_id_publicacion", id.ToString() }
+                };
+
+                var fotos = _repositorio.EjecutarProcedimiento<foto>("sp_fotos_publicacion", parametrosFotos);
+
+                // Eliminar la publicación (esto también debería eliminar las fotos en cascada en la BD)
+                var parametrosEliminar = new Dictionary<string, string>
+                {
+                    { "p_id_publicacion", id.ToString() },
+                    { "p_id_usuario", idUsuario.ToString() }
+                };
+
+                var resultado = _repositorio.EjecutarProcedimiento<publicacion>(
+                    "sp_eliminar_publicacion", parametrosEliminar);
+
+                // Cambiamos esta condición para aceptar tanto resultado no nulo como nulo
+                // ya que el procedimiento puede no retornar filas aun cuando se realizó la eliminación
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al eliminar la publicación: {ex.Message}");
+            }
+        }
     }
 
     public class CrearPublicacionModel

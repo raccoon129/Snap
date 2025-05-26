@@ -12,6 +12,8 @@ public partial class PublicacionPage : ContentPage
     private ObservableCollection<ComentarioViewModel> _comentarios = new ObservableCollection<ComentarioViewModel>();
     private bool _esFavorito = false;
 
+    private bool _esUsuarioPropietario = false;
+
     public PublicacionPage(ApiService apiService)
     {
         InitializeComponent();
@@ -33,6 +35,9 @@ public partial class PublicacionPage : ContentPage
     {
         try
         {
+            // Obtener la sesión del usuario actual
+            var sesion = await _apiService.ObtenerSesionActual();
+
             // Mostrar indicador de carga (si existe)
             if (LoadingIndicator != null)
             {
@@ -60,7 +65,7 @@ public partial class PublicacionPage : ContentPage
             if (publicacion == null)
             {
                 // Si no se encuentra en el feed, intentar obtenerla directamente
-                var sesion = await _apiService.ObtenerSesionActual();
+                //var sesion = await _apiService.ObtenerSesionActual();
                 if (sesion.SesionActiva && sesion.Usuario != null)
                 {
                     var publicacionesUsuario = await _apiService.ObtenerPublicacionesDeUsuario(sesion.Usuario.id_usuario);
@@ -70,6 +75,16 @@ public partial class PublicacionPage : ContentPage
 
             if (publicacion != null)
             {
+
+                // Verificar si el usuario actual es el propietario
+                _esUsuarioPropietario = sesion.SesionActiva &&
+                                       sesion.Usuario != null &&
+                                       publicacion.IdUsuario == sesion.Usuario.id_usuario;
+
+                // Mostrar u ocultar el botón de opciones según corresponda
+                BtnOpciones.IsVisible = _esUsuarioPropietario;
+
+
                 // Cargar los datos de la publicación
                 ImgPerfilUsuario.Source = !string.IsNullOrEmpty(publicacion.UrlFotoPerfil)
                     ? publicacion.UrlFotoPerfil
@@ -226,6 +241,55 @@ public partial class PublicacionPage : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"No se pudo añadir el comentario: {ex.Message}", "OK");
+        }
+    }
+    // Implementar el manejador del botón de opciones
+    private async void OnOpcionesClicked(object sender, EventArgs e)
+    {
+        if (!_esUsuarioPropietario)
+            return;
+
+        // Mostrar opciones
+        bool eliminar = await DisplayActionSheet("Opciones", "Cancelar", null, "Eliminar publicación") == "Eliminar publicación";
+
+        if (eliminar)
+        {
+            // Pedir confirmación
+            bool confirmar = await DisplayAlert("Eliminar publicación",
+                "¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer.",
+                "Eliminar", "Cancelar");
+
+            if (confirmar)
+            {
+                // Mostrar indicador de carga
+                LoadingIndicator.IsRunning = true;
+                LoadingIndicator.IsVisible = true;
+
+                try
+                {
+                    bool eliminado = await _apiService.EliminarPublicacion(_publicacionId);
+
+                    if (eliminado)
+                    {
+                        await DisplayAlert("Éxito", "La publicación ha sido eliminada", "OK");
+                        // Navegar a la página de inicio
+                        await Shell.Current.GoToAsync("///Inicio");
+                    }
+                    else
+                    {
+                        await DisplayAlert("Error", "No se pudo eliminar la publicación", "OK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"Error al eliminar la publicación: {ex.Message}", "OK");
+                }
+                finally
+                {
+                    LoadingIndicator.IsRunning = false;
+                    LoadingIndicator.IsVisible = false;
+                }
+            }
         }
     }
 }

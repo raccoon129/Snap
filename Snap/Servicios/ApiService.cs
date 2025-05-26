@@ -508,6 +508,32 @@ namespace Snap.Servicios
                 return Tuple.Create(false, $"Error: {ex.Message}", 0);
             }
         }
+        public async Task<bool> EliminarPublicacion(int idPublicacion)
+        {
+            try
+            {
+                var sesion = await ObtenerSesionActual();
+                if (!sesion.SesionActiva || sesion.Usuario == null)
+                {
+                    return false;
+                }
+
+                var response = await _httpClient.DeleteAsync($"publicacion/{idPublicacion}/{sesion.Usuario.id_usuario}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<bool>();
+                }
+
+                Console.WriteLine($"Error al eliminar publicación: {await response.Content.ReadAsStringAsync()}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al eliminar publicación: {ex.Message}");
+                return false;
+            }
+        }
 
         #endregion
 
